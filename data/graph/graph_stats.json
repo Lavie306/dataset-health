@@ -1,0 +1,65 @@
+{
+  "total_nodes": 55021,
+  "total_edges": 55808,
+  "nodes_by_type": {
+    "disease": 3228,
+    "cause": 15541,
+    "test": 3286,
+    "treatment": 7899,
+    "complication": 1374,
+    "prevention": 6743,
+    "symptom": 10479,
+    "risk_factor": 6471
+  },
+  "edges_by_relation": {
+    "HAS_CAUSE": 16836,
+    "DIAGNOSED_BY": 3554,
+    "TREATED_BY": 8158,
+    "HAS_COMPLICATION": 1450,
+    "PREVENTED_BY": 7399,
+    "HAS_SYMPTOM": 11137,
+    "HAS_RISK": 7274
+  },
+  "top10_most_connected_diseases": [
+    {
+      "disease": "Bệnh Parkinson",
+      "degree": 104
+    },
+    {
+      "disease": "Béo phì ở trẻ em",
+      "degree": 103
+    },
+    {
+      "disease": "Bệnh lý thần kinh ngoại biên",
+      "degree": 96
+    },
+    {
+      "disease": "Chấy",
+      "degree": 93
+    },
+    {
+      "disease": "Bệnh lao",
+      "degree": 90
+    },
+    {
+      "disease": "Ung thư vú",
+      "degree": 88
+    },
+    {
+      "disease": "Ung thư tuyến tiền liệt",
+      "degree": 87
+    },
+    {
+      "disease": "Suy tim",
+      "degree": 81
+    },
+    {
+      "disease": "Cơn hen suyễn",
+      "degree": 80
+    },
+    {
+      "disease": "Chấn thương tủy sống",
+      "degree": 80
+    }
+  ]
+}

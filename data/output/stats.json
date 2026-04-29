@@ -1,0 +1,62 @@
+{
+  "total_records": 3298,
+  "by_source": {
+    "medlineplus": 2112,
+    "both": 461,
+    "mayo": 725
+  },
+  "field_coverage": {
+    "overview": {
+      "filled": 1652,
+      "empty": 1646,
+      "pct": 50.1
+    },
+    "symptoms": {
+      "filled": 2564,
+      "empty": 734,
+      "pct": 77.7
+    },
+    "causes": {
+      "filled": 2529,
+      "empty": 769,
+      "pct": 76.7
+    },
+    "risk_factors": {
+      "filled": 1121,
+      "empty": 2177,
+      "pct": 34.0
+    },
+    "prevention": {
+      "filled": 1485,
+      "empty": 1813,
+      "pct": 45.0
+    },
+    "when_to_see_doc": {
+      "filled": 2359,
+      "empty": 939,
+      "pct": 71.5
+    },
+    "treatment": {
+      "filled": 1481,
+      "empty": 1817,
+      "pct": 44.9
+    },
+    "prognosis": {
+      "filled": 1898,
+      "empty": 1400,
+      "pct": 57.6
+    },
+    "complications": {
+      "filled": 1107,
+      "empty": 2191,
+      "pct": 33.6
+    },
+    "exams_and_tests": {
+      "filled": 1464,
+      "empty": 1834,
+      "pct": 44.4
+    }
+  },
+  "total_words": 2530662,
+  "avg_words_per_record": 767.3
+}
