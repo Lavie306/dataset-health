@@ -4,120 +4,152 @@ build_graph.py  –  Knowledge Graph từ medical data
 Input : data/processed/translated.json  (ưu tiên)
         data/processed/merged.json       (fallback)
 Output:
-  data/output/graph.json       – {nodes, edges}
-  data/output/nodes.csv        – node table
-  data/output/edges.csv        – edge table
-  data/output/graph_stats.json – thống kê
+  data/graph/nodes.csv         – node table
+  data/graph/edges.csv         – edge table
+  data/graph/nodes.json        – nodes in JSON
+  data/graph/edges.json        – edges in JSON
 
-Node types : disease | symptom | cause | risk_factor | treatment | test | complication | prevention
-Edge types  : HAS_SYMPTOM | HAS_CAUSE | HAS_RISK | TREATED_BY | DIAGNOSED_BY | HAS_COMPLICATION | PREVENTED_BY
+Node types: disease | symptom | drug | test | organ | risk_factor | complication | treatment | guideline
+Edge types: HAS_SYMPTOM | TREATED_BY | DIAGNOSED_BY | AFFECTS | INCREASES_RISK_OF | CAN_CAUSE | MANAGED_BY | FOLLOWS
 
-Fix so với code gốc:
-  1. split_items() nhận dạng 3 format: newline-list / inline-list / paragraph
-  2. Dedup nodes by normalized key
-  3. Dedup edges (src, rel, dst)
-  4. Strip boilerplate headers
-  5. Degree tracking cho viz
-  6. graph_stats.json với top diseases
+Cấu trúc:
+  - diseases: {id, name, icd, description}
+  - symptoms: {id, name, description}
+  - drugs: {id, name, generic, class}
+  - tests: {id, name, description, normal}
+  - organs: {id, name, system}
+  - risk_factors: {id, name, description}
+  - complications: {id, name, severity}
+  - treatments: {id, name, type}
+  - guidelines: {id, name, source}
 """
 
-import json, re, uuid, pathlib, logging, time
+import csv, re, json, uuid, pathlib, logging, time, argparse
 from collections import defaultdict
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger("graph")
 
-TRANSLATED = pathlib.Path("../../data/processed/translated.json")
-MERGED     = pathlib.Path("../../data/processed/merged.json")
+INPUT_FILE = pathlib.Path("../../data/processed/discretized.json")
+
 OUT_DIR    = pathlib.Path("../../data/graph")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-_CITE_RE   = re.compile(r"\[\d+\]")
 
+# ── Organ Mapping (Từ khóa ánh xạ Cơ quan từ tên bệnh) ────────────────────────
+ORGAN_MAPPING = [
+    {"name": "Tim", "system": "Hệ tuần hoàn", "keywords": ["tim", "mạch vành", "cơ tim", "huyết áp", "động mạch", "tĩnh mạch", "nhồi máu"]},
+    {"name": "Phổi", "system": "Hệ hô hấp", "keywords": ["phổi", "hô hấp", "phế quản", "hen suyễn", "lao", "tràn dịch màng phổi"]},
+    {"name": "Gan", "system": "Hệ tiêu hóa", "keywords": ["gan", "viêm gan", "xơ gan", "mật"]},
+    {"name": "Dạ dày - Ruột", "system": "Hệ tiêu hóa", "keywords": ["dạ dày", "bao tử", "tá tràng", "tiêu hóa", "ruột", "đại tràng", "trĩ"]},
+    {"name": "Thận - Tiết niệu", "system": "Hệ bài tiết", "keywords": ["thận", "tiết niệu", "bàng quang", "niệu đạo", "sỏi niệu"]},
+    {"name": "Não - Thần kinh", "system": "Hệ thần kinh", "keywords": ["não", "thần kinh", "đột quỵ", "chứng mất trí", "alzheimer", "động kinh", "parkinson", "chóng mặt"]},
+    {"name": "Mắt", "system": "Cơ quan cảm giác", "keywords": ["mắt", "thị giác", "giác mạc", "võng mạc", "thủy tinh thể", "đục", "cườm", "lác"]},
+    {"name": "Xương khớp", "system": "Hệ vận động", "keywords": ["xương", "khớp", "cột sống", "thoái hóa khớp", "loãng xương", "gút", "cơ", "dây chằng"]},
+    {"name": "Da", "system": "Hệ vỏ bọc", "keywords": ["da", "viêm da", "vảy nến", "hắc lào", "lang ben", "mụn", "mề đay", "nấm"]},
+    {"name": "Máu", "system": "Hệ tuần hoàn", "keywords": ["máu", "huyết học", "bạch cầu", "hồng cầu", "tiểu cầu", "thiếu máu", "huyết khối"]},
+    {"name": "Tuyến nội tiết", "system": "Hệ nội tiết", "keywords": ["tuyến giáp", "cường giáp", "suy giáp", "đái tháo đường", "tiểu đường", "nội tiết"]},
+    {"name": "Tai Mũi Họng", "system": "Cơ quan cảm giác / Hô hấp", "keywords": ["tai", "mũi", "họng", "amidan", "viêm xoang", "thanh quản", "viêm mũi"]},
+    {"name": "Hệ sinh dục nữ", "system": "Hệ sinh sản", "keywords": ["tử cung", "buồng trứng", "âm đạo", "kinh nguyệt", "phụ khoa", "tuyến vú", "mang thai"]},
+    {"name": "Hệ sinh dục nam", "system": "Hệ sinh sản", "keywords": ["tuyến tiền liệt", "tinh hoàn", "dương vật", "nam khoa", "tinh trùng"]},
+    {"name": "Tụy", "system": "Hệ tiêu hóa / Hệ nội tiết", "keywords": ["tụy"]},
+    {"name": "Túi mật & Đường mật", "system": "Hệ tiêu hóa", "keywords": ["túi mật", "đường mật", "sỏi mật"]},
+    {"name": "Hệ miễn dịch - Bạch huyết", "system": "Hệ miễn dịch", "keywords": ["miễn dịch", "bạch huyết", "hạch", "lách", "lupus", "hiv", "aids", "tự miễn"]},
+    {"name": "Răng Miệng", "system": "Hệ tiêu hóa", "keywords": ["răng", "nướu", "nha chu", "tủy răng", "lưỡi", "miệng", "sâu răng", "viêm lợi"]},
+    {"name": "Tuyến vú", "system": "Hệ sinh sản", "keywords": ["vú", "tuyến vú", "nhũ hoa", "áp xe vú"]},
+    {"name": "Tóc và Móng", "system": "Hệ vỏ bọc", "keywords": ["tóc", "hói", "rụng tóc", "móng", "nấm móng"]},
+]
+# ── Node type prefix & labels ─────────────────────────────────────────────────
+PREFIX = {
+    "diseases": "D",
+    "symptoms": "S",
+    "drugs": "DR",
+    "tests": "T",
+    "organs": "O",
+    "risk_factors": "RF",
+    "complications": "C",
+    "treatments": "TR",
+    "guidelines": "G",
+    "categories": "CAT",
+}
+
+NODE_LABELS = {
+    "diseases": "Disease",
+    "symptoms": "Symptom",
+    "drugs": "Drug",
+    "tests": "Test",
+    "organs": "Organ",
+    "risk_factors": "RiskFactor",
+    "complications": "Complication",
+    "treatments": "Treatment",
+    "guidelines": "Guideline",
+    "categories": "Category",
+}
+
+# ── field CSV → category MEDICAL_DATA ────────────────────────────────────────
+FIELD_TO_CATEGORY = {
+    "symptoms": "symptoms",
+    "causes": "causes",
+    "risk_factors": "risk_factors",
+    "treatment": "treatments",
+    "exams_and_tests": "tests",
+    "complications": "complications",
+    "prevention": "treatments",  # prevention cũng được lưu vào treatments
+}
+
+# ── relationship per category ─────────────────────────────────────────────────
+CATEGORY_TO_REL = {
+    "symptoms": ("disease", "HAS_SYMPTOM", "node"),
+    "causes": ("disease", "HAS_CAUSE", "node"),
+    "risk_factors": ("node", "INCREASES_RISK_OF", "disease"),  # RF→D
+    "treatments": ("disease", "MANAGED_BY", "node"),
+    "tests": ("disease", "DIAGNOSED_BY", "node"),
+    "complications": ("disease", "CAN_CAUSE", "node"),
+}
 
 # =============================================================================
-# TEXT SPLITTING
+# TEXT SPLITTER
 # =============================================================================
-
-def _looks_like_concat_bullets(text):
-    if "." in text:
-        return False
-    caps = re.findall(r"\b[A-Z][a-z]{2,}", text)
-    return len(caps) >= 3
-
-
-def _split_concat_bullets(text):
-    marked = re.sub(r"(?<=[a-z])\s+(?=[A-Z])", "\n", text)
-    return [p.strip() for p in marked.splitlines() if len(p.strip()) > 3]
-
-
-def _split_sentences(text):
-    parts = re.split(r"(?<=[.!?])\s+(?=[A-Z])", text)
-    result = []
-    for p in parts:
-        p = p.strip().rstrip(".!?")
-        if 10 <= len(p) <= 120:
-            result.append(p)
-    return result
+_HEADER_VI = re.compile(
+    r"^(Các triệu chứng|Những triệu chứng|Triệu chứng|Nguyên nhân|"
+    r"Yếu tố nguy cơ|Biến chứng|Điều trị|Xét nghiệm|Những xét nghiệm|"
+    r"Những biến chứng|Những yếu tố|Bao gồm|Phòng ngừa|Phòng bệnh|"
+    r"Chẩn đoán|Nguyên nhân có thể)[^:]*:\s*",
+    re.IGNORECASE
+)
+_INCLUDE_RE = re.compile(
+    r'(?:bao gồm|gồm có|như sau|sau đây)\s*:(.+)$',
+    re.IGNORECASE | re.DOTALL
+)
+_BOUNDARY_VI = re.compile(
+    r'(?<=[a-zàáâãèéêìíòóôõùúýăđơư])\s+(?=[A-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝĂĐƠƯ])'
+)
 
 
-def _clean_item(item):
-    item = item.strip().rstrip(".,;:")
-    item = re.sub(r"\s+", " ", item)
-    if len(item) <= 4 or len(item) > 150:
-        return ""
-    if re.fullmatch(r"[^a-zA-Z]+", item):
-        return ""
-    return item
-
-
-def split_items(text, source=""):
-    """
-    Tách text thành danh sách entity.
-    3 format được hỗ trợ:
-      A. Newline list  (MedlinePlus)
-      B. Inline list   (Mayo/Medline: "may include: Item A Item B")
-      C. Plain paragraph (Mayo)
-    """
-    if not text:
+def split_items(text: str, max_items: int = 12, max_len: int = 100) -> list[str]:
+    if not text or len(text.strip()) < 3:
         return []
 
-    text = _CITE_RE.sub("", text).strip()
+    text = _HEADER_VI.sub("", text.strip())
+    m = _INCLUDE_RE.search(text)
+    if m:
+        text = m.group(1).strip()
 
-    # Format A: newline-separated
     if "\n" in text:
-        if ":" in text:
-            parts = text.split(":", 1)
-            if len(parts[0].split()) <= 8:
-                text = parts[1]
-        items = [line.strip() for line in text.splitlines()]
-
-    # Format B: "include:" / "may include:" inline list
-    elif re.search(r"\b(?:include|may include|such as)\s*:", text, re.IGNORECASE):
-        match = re.search(
-            r"(?:include|may include|such as)\s*:(.+)$",
-            text, re.IGNORECASE | re.DOTALL
-        )
-        if match:
-            list_part = match.group(1).strip()
-            items = re.split(r"(?<=[a-z,])\s+(?=[A-Z])", list_part)
-        else:
-            items = _split_sentences(text)
-
-    # Format C-bullet: concat caps "Word Word Word"
-    elif _looks_like_concat_bullets(text):
-        items = _split_concat_bullets(text)
-
-    # Format C-paragraph: Mayo prose
+        items = text.splitlines()
     else:
-        items = _split_sentences(text)
+        marked = _BOUNDARY_VI.sub("\n", text)
+        items = marked.splitlines()
+        if len(items) == 1 and len(items[0]) > 60:
+            items = re.split(r'[,;]\s+', items[0])
 
-    # Clean + dedup
     cleaned, seen = [], set()
     for item in items:
-        item = _clean_item(item)
-        if not item:
+        item = item.strip().strip(".,;:-–•*")
+        if len(item) < 3 or len(item) > max_len:
+            continue
+        if not re.search(r'[a-zA-ZàáâãèéêìíòóôõùúýăđơưÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝĂĐƠƯ]', item):
             continue
         key = item.lower()
         if key in seen:
@@ -125,152 +157,309 @@ def split_items(text, source=""):
         seen.add(key)
         cleaned.append(item)
 
-    return cleaned
+    return cleaned[:max_items]
 
 
 # =============================================================================
-# GRAPH BUILDER
+# LOAD INPUT
 # =============================================================================
+def load_file(path: pathlib.Path) -> list[dict]:
+    suffix = path.suffix.lower()
 
-def normalize_key(name):
-    name = name.lower().strip()
-    name = re.sub(r"[^a-z0-9 ]", " ", name)
-    return re.sub(r"\s+", " ", name).strip()
+    if suffix == ".csv":
+        with open(path, encoding="utf-8-sig") as f:
+            rows = list(csv.DictReader(f))
+        log.info(f"  CSV: {len(rows)} records")
+        return rows
 
+    with open(path, encoding="utf-8") as f:
+        raw = f.read().strip()
 
-class GraphBuilder:
-    def __init__(self):
-        self.nodes      = []
-        self.edges      = []
-        self._node_map  = {}
-        self._edge_set  = set()
-        self._degree    = defaultdict(int)
+    # JSONL
+    if raw.startswith("{") and "\n{" in raw[:2000]:
+        rows = [json.loads(line) for line in raw.splitlines() if line.strip()]
+        log.info(f"  JSONL: {len(rows)} records")
+        return rows
 
-    def get_or_create_node(self, name, node_type):
-        key = f"{node_type}:{normalize_key(name)}"
-        if key not in self._node_map:
-            node_id = f"{node_type[0].upper()}_{uuid.uuid4().hex[:8]}"
-            self._node_map[key] = node_id
-            self.nodes.append({"id": node_id, "name": name, "type": node_type})
-        return self._node_map[key]
+    data = json.loads(raw)
+    if isinstance(data, list):
+        log.info(f"  JSON array: {len(data)} records")
+        return data
 
-    def add_edge(self, src, relation, dst):
-        key = (src, relation, dst)
-        if key in self._edge_set:
-            return
-        self._edge_set.add(key)
-        self.edges.append({"source": src, "relation": relation, "target": dst})
-        self._degree[src] += 1
-        self._degree[dst] += 1
+    for key in ("records", "data", "diseases", "items", "results"):
+        if key in data and isinstance(data[key], list):
+            log.info(f"  JSON['{key}']: {len(data[key])} records")
+            return data[key]
 
-    def finalize(self):
-        for node in self.nodes:
-            node["degree"] = self._degree.get(node["id"], 0)
+    log.error("Không đọc được file JSON")
+    return []
 
 
-FIELD_MAP = {
-    "symptoms":        ("symptom",      "HAS_SYMPTOM"),
-    "causes":          ("cause",        "HAS_CAUSE"),
-    "risk_factors":    ("risk_factor",  "HAS_RISK"),
-    "treatment":       ("treatment",    "TREATED_BY"),
-    "exams_and_tests": ("test",         "DIAGNOSED_BY"),
-    "complications":   ("complication", "HAS_COMPLICATION"),
-    "prevention":      ("prevention",   "PREVENTED_BY"),
-}
-
-
-def build_graph(records):
-    g = GraphBuilder()
-    for rec in records:
-        disease = rec.get("disease", "").strip()
-        if not disease:
-            continue
-        d_id   = g.get_or_create_node(disease, "disease")
-        source = rec.get("source", "")
-        for field, (node_type, relation) in FIELD_MAP.items():
-            raw = rec.get(field, "") or ""
-            for item_name in split_items(raw, source):
-                n_id = g.get_or_create_node(item_name, node_type)
-                g.add_edge(d_id, relation, n_id)
-    g.finalize()
-    return g
-
-
-# =============================================================================
-# EXPORT
-# =============================================================================
-
-def export_all(g):
-    with open(OUT_DIR / "graph.json", "w", encoding="utf-8") as f:
-        json.dump({"nodes": g.nodes, "edges": g.edges}, f,
-                  ensure_ascii=False, indent=2)
-    log.info(f"Saved graph.json  -> {OUT_DIR}/graph.json")
-
-    pd.DataFrame(g.nodes).to_csv(
-        OUT_DIR / "nodes.csv", index=False, encoding="utf-8-sig")
-    log.info(f"Saved nodes.csv   -> {OUT_DIR}/nodes.csv")
-
-    pd.DataFrame(g.edges).to_csv(
-        OUT_DIR / "edges.csv", index=False, encoding="utf-8-sig")
-    log.info(f"Saved edges.csv   -> {OUT_DIR}/edges.csv")
-
-    type_counts = defaultdict(int)
-    for node in g.nodes:
-        type_counts[node["type"]] += 1
-
-    rel_counts = defaultdict(int)
-    for edge in g.edges:
-        rel_counts[edge["relation"]] += 1
-
-    disease_nodes = {n["id"]: n["name"] for n in g.nodes if n["type"] == "disease"}
-    top_diseases  = sorted(
-        [(g._degree[nid], name) for nid, name in disease_nodes.items()],
-        reverse=True
-    )[:10]
-
-    stats = {
-        "total_nodes":     len(g.nodes),
-        "total_edges":     len(g.edges),
-        "nodes_by_type":   dict(type_counts),
-        "edges_by_relation": dict(rel_counts),
-        "top10_most_connected_diseases": [
-            {"disease": name, "degree": deg} for deg, name in top_diseases
-        ],
+def normalize_row(row: dict) -> dict:
+    """Chuẩn hoá key khác nhau về schema thống nhất."""
+    aliases = {
+        "name": "disease", "disease_name": "disease",
+        "symptom": "symptoms", "cause": "causes",
+        "risk_factor": "risk_factors", "treatments": "treatment",
+        "exam": "exams_and_tests", "tests": "exams_and_tests",
+        "complication": "complications",
     }
-    with open(OUT_DIR / "graph_stats.json", "w", encoding="utf-8") as f:
-        json.dump(stats, f, ensure_ascii=False, indent=2)
-    log.info(f"Saved graph_stats -> {OUT_DIR}/graph_stats.json")
-    return stats
+    out = dict(row)
+    for old, new in aliases.items():
+        if old in out and new not in out:
+            out[new] = out.pop(old)
+    # list → string
+    for f in FIELD_TO_CATEGORY:
+        val = out.get(f)
+        if isinstance(val, list):
+            out[f] = "\n".join(str(v) for v in val if v)
+    return out
+
+
+# =============================================================================
+# BUILD MEDICAL_DATA + RELATIONSHIPS
+# =============================================================================
+def build(rows: list[dict]):
+    # node_store[category] = list of node dicts
+    node_store: dict[str, list] = defaultdict(list)
+    # node_index[category][norm_name] = id
+    node_index: dict[str, dict] = defaultdict(dict)
+    # counters per category
+    counters: dict[str, int] = defaultdict(int)
+    # relationships list
+    relationships: list[tuple] = []
+
+    def norm(name: str) -> str:
+        return re.sub(r"\s+", " ", name.lower().strip())
+
+    def get_or_create(category: str, name: str, extra: dict = None) -> str:
+        key = norm(name)
+        if key not in node_index[category]:
+            counters[category] += 1
+            n = counters[category]
+            pre = PREFIX.get(category, category[:2].upper())
+            nid = f"{pre}{n:03d}"
+            node = {"id": nid, "name": name}
+            
+            # Add default fields per category
+            if category == "diseases":
+                node["icd"] = extra.get("icd", "") if extra else ""
+                node["description"] = extra.get("description", "") if extra else ""
+                node["disease_type"] = extra.get("disease_type", "") if extra else ""
+                node["severity"] = extra.get("severity", "") if extra else ""
+                node["demographic"] = extra.get("demographic", "") if extra else ""
+                node["contagious"] = extra.get("contagious", "") if extra else ""
+            elif category == "drugs":
+                node["generic"] = extra.get("generic", "") if extra else ""
+                node["class"] = extra.get("class", "Chưa phân loại") if extra else "Chưa phân loại"
+            elif category == "tests":
+                node["description"] = extra.get("description", "") if extra else ""
+                node["normal"] = extra.get("normal", "") if extra else ""
+            elif category == "organs":
+                node["system"] = extra.get("system", "") if extra else ""
+            elif category == "risk_factors":
+                node["description"] = extra.get("description", "") if extra else ""
+            elif category == "complications":
+                node["severity"] = extra.get("severity", "Chưa phân loại") if extra else "Chưa phân loại"
+            elif category == "treatments":
+                node["type"] = extra.get("type", "Non-pharmacological") if extra else "Non-pharmacological"
+            elif category == "guidelines":
+                node["source"] = extra.get("source", "Chưa phân loại") if extra else "Chưa phân loại"
+            elif category == "symptoms":
+                node["description"] = extra.get("description", "") if extra else ""
+            
+            node_store[category].append(node)
+            node_index[category][key] = nid
+        return node_index[category][key]
+
+    for i, raw_row in enumerate(rows):
+        row = normalize_row(raw_row)
+        name_vi = (row.get("disease") or "").strip()
+        name_en = (row.get("disease_en") or name_vi).strip()
+        if not name_vi:
+            continue
+
+        # Tạo Disease node
+        d_id = get_or_create("diseases", name_vi, {
+            "icd": row.get("icd_code", ""),
+            "description": (row.get("overview") or "")[:150].replace("\n", " "),
+            "disease_type": row.get("disease_type", ""),
+            "severity": row.get("severity_level", ""),
+            "demographic": row.get("target_demographic", ""),
+            "contagious": row.get("is_contagious", ""),
+        })
+
+        # ─────────────────────────────────────────────────────────────
+        # BỔ SUNG: Trích xuất Cơ quan (Organ) dựa vào tên bệnh
+        # ─────────────────────────────────────────────────────────────
+        name_lower = name_vi.lower()
+        for organ_data in ORGAN_MAPPING:
+            # Nếu phát hiện từ khóa trong tên bệnh
+            if any(kw in name_lower for kw in organ_data["keywords"]):
+                # Tạo node Organ
+                o_id = get_or_create("organs", organ_data["name"], {
+                    "system": organ_data["system"]
+                })
+                # Thêm quan hệ Disease -[AFFECTS]-> Organ
+                relationships.append((d_id, "AFFECTS", o_id))
+        # ─────────────────────────────────────────────────────────────
+        # Tạo các node liên quan + relationship
+        for field, category in FIELD_TO_CATEGORY.items():
+            text = row.get(field, "") or ""
+            items = split_items(text)
+
+            for item_name in items:
+                # Extra props theo category
+                extra = {}
+                if category == "symptoms":
+                    extra = {"description": item_name}
+                elif category == "tests":
+                    extra = {"description": item_name, "normal": ""}
+                elif category == "risk_factors":
+                    extra = {"description": item_name}
+                elif category == "complications":
+                    extra = {"severity": "Chưa phân loại"}
+                elif category == "treatments":
+                    extra = {"type": "Non-pharmacological"}
+                elif category == "drugs":
+                    extra = {"generic": item_name, "class": "Chưa phân loại"}
+                elif category == "organs":
+                    extra = {"system": "Chưa phân loại"}
+                elif category == "guidelines":
+                    extra = {"source": "Chưa phân loại"}
+
+                n_id = get_or_create(category, item_name, extra)
+
+                # Build relationship tuple
+                src_type, rel, dst_type = CATEGORY_TO_REL[category]
+                if src_type == "disease":
+                    relationships.append((d_id, rel, n_id))
+                else:  # RF → Disease
+                    relationships.append((n_id, rel, d_id))
+
+        if (i + 1) % 500 == 0:
+            total_nodes = sum(len(v) for v in node_store.values())
+            log.info(f"  {i + 1}/{len(rows)} records | nodes={total_nodes:,} | rels={len(relationships):,}")
+
+    return node_store, relationships
+
+
+# =============================================================================
+# EXPORT GRAPH DATA
+# =============================================================================
+def export_graph(node_store: dict, relationships: list, output_dir: pathlib.Path):
+    """Export graph to CSV and JSON formats."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # ─ Export nodes.csv + nodes.json ─────────────────────────────────────────
+    nodes_csv = output_dir / "nodes.csv"
+    nodes_json = output_dir / "nodes.json"
+    
+    all_nodes = []
+    
+    for category, nodes in node_store.items():
+        for node in nodes:
+            node_copy = dict(node)
+            node_copy["type"] = NODE_LABELS.get(category, category)
+            all_nodes.append(node_copy)
+    
+    # CSV format
+    if all_nodes:
+        df_nodes = pd.DataFrame(all_nodes)
+        df_nodes.to_csv(nodes_csv, index=False, encoding="utf-8")
+        log.info(f"  Nodes CSV: {len(all_nodes)} → {nodes_csv}")
+    
+    # JSON format
+    with open(nodes_json, "w", encoding="utf-8") as f:
+        json.dump(all_nodes, f, ensure_ascii=False, indent=2)
+    log.info(f"  Nodes JSON: {len(all_nodes)} → {nodes_json}")
+    
+    # ─ Export edges.csv + edges.json ─────────────────────────────────────────
+    edges_csv = output_dir / "edges.csv"
+    edges_json = output_dir / "edges.json"
+    
+    edges_list = []
+    for src_id, rel_type, dst_id in relationships:
+        edges_list.append({
+            "src_id": src_id,
+            "relation": rel_type,
+            "dst_id": dst_id
+        })
+    
+    # CSV format
+    if edges_list:
+        df_edges = pd.DataFrame(edges_list)
+        df_edges.to_csv(edges_csv, index=False, encoding="utf-8")
+        log.info(f"  Edges CSV: {len(edges_list)} → {edges_csv}")
+    
+    # JSON format
+    with open(edges_json, "w", encoding="utf-8") as f:
+        json.dump(edges_list, f, ensure_ascii=False, indent=2)
+    log.info(f"  Edges JSON: {len(edges_list)} → {edges_json}")
+
 
 
 # =============================================================================
 # MAIN
 # =============================================================================
+def main():
+    parser = argparse.ArgumentParser(
+        description="Xây dựng Knowledge Graph từ medical data"
+    )
+    parser.add_argument("--input", default=str(INPUT_FILE),
+                        help="Path đến medical_vi.csv hoặc .json")
+    parser.add_argument("--output-dir", default=str(OUT_DIR),
+                        help="Thư mục output cho CSV/JSON files")
+    parser.add_argument("--limit", type=int, default=0,
+                        help="Giới hạn số bản ghi (0 = tất cả)")
+    args = parser.parse_args()
 
-def run():
+    input_path = pathlib.Path(args.input)
+    output_dir = pathlib.Path(args.output_dir)
+
+    if not input_path.exists():
+        log.error(f"Không tìm thấy file: {input_path}")
+        return
+
     t0 = time.time()
-    input_file = TRANSLATED if TRANSLATED.exists() else MERGED
-    log.info(f"Loading {input_file} ...")
-    with open(input_file, encoding="utf-8") as f:
-        records = json.load(f)
-    log.info(f"  {len(records)} records")
+    log.info(f"Loading {input_path} ...")
+    rows = load_file(input_path)
+
+    if args.limit > 0:
+        rows = rows[:args.limit]
+        log.info(f"  Giới hạn: {args.limit} records")
 
     log.info("Building graph ...")
-    g = build_graph(records)
+    node_store, relationships = build(rows)
 
-    log.info("Exporting ...")
-    stats = export_all(g)
+    # Dedup relationships
+    relationships = list(dict.fromkeys(relationships))
 
-    log.info("-" * 50)
-    log.info(f"Nodes           : {stats['total_nodes']:,}")
-    log.info(f"Edges           : {stats['total_edges']:,}")
-    log.info(f"Nodes by type   : {stats['nodes_by_type']}")
-    log.info(f"Edges by rel    : {stats['edges_by_relation']}")
-    log.info("Top 10 diseases :")
-    for e in stats["top10_most_connected_diseases"]:
-        log.info(f"  {e['degree']:>4}  {e['disease']}")
-    log.info(f"Done in {time.time()-t0:.1f}s")
+    total_nodes = sum(len(v) for v in node_store.values())
+    log.info("─" * 55)
+    log.info(f"Nodes : {total_nodes:,}")
+    log.info(f"Rels  : {len(relationships):,}")
+    log.info("Nodes by category:")
+    
+    category_order = [
+        "diseases", "symptoms", "drugs", "tests", "organs",
+        "risk_factors", "complications", "treatments", "guidelines",
+    ]
+    
+    for cat in category_order:
+        nodes = node_store.get(cat, [])
+        log.info(f"  {cat:<15}: {len(nodes):>6,}")
+
+    from collections import Counter
+    rel_cnt = Counter(r[1] for r in relationships)
+    log.info("Rels by type:")
+    for k, v in rel_cnt.most_common():
+        log.info(f"  {k:<25}: {v:>6,}")
+
+    log.info(f"\nExporting to {output_dir} ...")
+    export_graph(node_store, relationships, output_dir)
+    log.info(f"✅ Done in {time.time() - t0:.1f}s")
 
 
 if __name__ == "__main__":
-    run()
+    main()

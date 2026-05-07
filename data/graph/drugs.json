@@ -1,0 +1,191 @@
+[
+  {
+    "id": "DR001",
+    "name": "Prednisone",
+    "generic": "Prednisone",
+    "class": "Corticosteroid",
+    "type": "Drug"
+  },
+  {
+    "id": "DR002",
+    "name": "Estrogen",
+    "generic": "Estrogen",
+    "class": "Hormone nữ",
+    "type": "Drug"
+  },
+  {
+    "id": "DR003",
+    "name": "Tretinoin",
+    "generic": "Tretinoin",
+    "class": "Thuốc trị mụn",
+    "type": "Drug"
+  },
+  {
+    "id": "DR004",
+    "name": "Ibuprofen",
+    "generic": "Ibuprofen",
+    "class": "Thuốc chống viêm",
+    "type": "Drug"
+  },
+  {
+    "id": "DR005",
+    "name": "Aspirin",
+    "generic": "Aspirin",
+    "class": "Thuốc chống viêm",
+    "type": "Drug"
+  },
+  {
+    "id": "DR006",
+    "name": "Amoxicillin",
+    "generic": "Amoxicillin",
+    "class": "Kháng sinh",
+    "type": "Drug"
+  },
+  {
+    "id": "DR007",
+    "name": "Doxycycline",
+    "generic": "Doxycycline",
+    "class": "Kháng sinh",
+    "type": "Drug"
+  },
+  {
+    "id": "DR008",
+    "name": "Tetracycline",
+    "generic": "Tetracycline",
+    "class": "Kháng sinh",
+    "type": "Drug"
+  },
+  {
+    "id": "DR009",
+    "name": "Erythromycin",
+    "generic": "Erythromycin",
+    "class": "Kháng sinh",
+    "type": "Drug"
+  },
+  {
+    "id": "DR010",
+    "name": "Benzoyl Peroxide",
+    "generic": "Benzoyl Peroxide",
+    "class": "Thuốc trị mụn",
+    "type": "Drug"
+  },
+  {
+    "id": "DR011",
+    "name": "Isotretinoin",
+    "generic": "Isotretinoin",
+    "class": "Thuốc trị mụn",
+    "type": "Drug"
+  },
+  {
+    "id": "DR012",
+    "name": "Hydrocortisone",
+    "generic": "Hydrocortisone",
+    "class": "Corticosteroid",
+    "type": "Drug"
+  },
+  {
+    "id": "DR013",
+    "name": "Warfarin",
+    "generic": "Warfarin",
+    "class": "Thuốc chống đông",
+    "type": "Drug"
+  },
+  {
+    "id": "DR014",
+    "name": "Acetaminophen",
+    "generic": "Acetaminophen",
+    "class": "Thuốc hạ sốt",
+    "type": "Drug"
+  },
+  {
+    "id": "DR015",
+    "name": "Naproxen",
+    "generic": "Naproxen",
+    "class": "Thuốc chống viêm",
+    "type": "Drug"
+  },
+  {
+    "id": "DR016",
+    "name": "Cortisol",
+    "generic": "Cortisol",
+    "class": "Corticosteroid",
+    "type": "Drug"
+  },
+  {
+    "id": "DR017",
+    "name": "Metronidazole",
+    "generic": "Metronidazole",
+    "class": "Kháng sinh",
+    "type": "Drug"
+  },
+  {
+    "id": "DR018",
+    "name": "Penicillin",
+    "generic": "Penicillin",
+    "class": "Kháng sinh",
+    "type": "Drug"
+  },
+  {
+    "id": "DR019",
+    "name": "Ciprofloxacin",
+    "generic": "Ciprofloxacin",
+    "class": "Kháng sinh",
+    "type": "Drug"
+  },
+  {
+    "id": "DR020",
+    "name": "Heparin",
+    "generic": "Heparin",
+    "class": "Thuốc chống đông",
+    "type": "Drug"
+  },
+  {
+    "id": "DR021",
+    "name": "Insulin",
+    "generic": "Insulin",
+    "class": "Thuốc tiểu đường",
+    "type": "Drug"
+  },
+  {
+    "id": "DR022",
+    "name": "Fluoxetine",
+    "generic": "Fluoxetine",
+    "class": "Thuốc chống trầm cảm",
+    "type": "Drug"
+  },
+  {
+    "id": "DR023",
+    "name": "Azithromycin",
+    "generic": "Azithromycin",
+    "class": "Kháng sinh",
+    "type": "Drug"
+  },
+  {
+    "id": "DR024",
+    "name": "Metformin",
+    "generic": "Metformin",
+    "class": "Thuốc tiểu đường",
+    "type": "Drug"
+  },
+  {
+    "id": "DR025",
+    "name": "Testosterone",
+    "generic": "Testosterone",
+    "class": "Hormone nam",
+    "type": "Drug"
+  },
+  {
+    "id": "DR026",
+    "name": "Atorvastatin",
+    "generic": "Atorvastatin",
+    "class": "Thuốc hạ cholesterol",
+    "type": "Drug"
+  },
+  {
+    "id": "DR027",
+    "name": "Omeprazole",
+    "generic": "Omeprazole",
+    "class": "Thuốc trị loét dạ dày",
+    "type": "Drug"
+  }
+]
