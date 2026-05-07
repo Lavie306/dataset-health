@@ -95,26 +95,96 @@ python src/neo4j/up_neo4j.py                           # Bước 3: Đẩy lên 
 
 ---
 
-## 📂 Cấu trúc thư mục
+## 📂 Cấu trúc thư mục chi tiết
 
 ```
 Project/
+│
 ├── data/
-│   ├── raw/          # Dữ liệu gốc (mayo_full.json, medlineplus_full.json)
-│   ├── processed/    # File trung gian: cleaned, merged, translated, reduced, discretized
-│   ├── output/       # Xuất cuối: medical_vi.csv, stats.json, quality_report.md
-│   └── graph/        # Knowledge Graph: nodes.json, edges.json, drugs.json, guidelines.json
+│   ├── raw/                              # 📥 Dữ liệu đầu vào (Scraped Data)
+│   │   ├── mayo_full.json               #    ~1,300 bệnh – crawl từ Mayo Clinic
+│   │   └── medlineplus_full.json        #    ~2,200 bệnh – crawl từ MedlinePlus
+│   │
+│   ├── processed/                        # ⚙️  File trung gian (Data Pipeline)
+│   │   ├── mayo_clean.json              #    Bước 1 – Làm sạch (Mayo)
+│   │   ├── medlineplus_clean.json       #    Bước 1 – Làm sạch (MedlinePlus)
+│   │   ├── merged.json                  #    Bước 2 – Hợp nhất & Deduplicate
+│   │   ├── translated.json              #    Bước 3 – Dịch sang tiếng Việt (Google/API)
+│   │   ├── reduced.json                 #    Bước 4 – Cắt tỉa (Smart Truncation)
+│   │   ├── reduction_report.json        #    Bước 4 – Báo cáo tỷ lệ giảm kích thước
+│   │   └── discretized.json             #    Bước 6 – Gắn mã ICD-10, Severity, Category ✅
+│   │
+│   ├── output/                           # 📤 File xuất cuối cùng (Ready to Use)
+│   │   ├── medical_vi.json              #    Toàn bộ dữ liệu chuẩn (JSON)
+│   │   ├── medical_vi.jsonl             #    Toàn bộ dữ liệu chuẩn (JSONL)
+│   │   ├── medical_vi.csv               #    Toàn bộ dữ liệu chuẩn (CSV) ✅
+│   │   ├── stats.json                   #    Thống kê tổng quan Pipeline
+│   │   ├── quality_report.json          #    Đánh giá chất lượng dữ liệu (JSON)
+│   │   └── quality_report.md            #    Đánh giá chất lượng dữ liệu (Markdown) ✅
+│   │
+│   └── graph/                            # 🕸️  Đầu vào Knowledge Graph (Neo4j)
+│       ├── nodes.json                   #    Node bệnh lý cơ bản
+│       ├── nodes_updated.json           #    Node tích hợp Thuốc + Guideline
+│       ├── edges.json                   #    Quan hệ (Relationship) cơ bản
+│       ├── edges_updated.json           #    Quan hệ tích hợp đầy đủ
+│       ├── drugs.json                   #    Kho dữ liệu 27 loại thuốc chuyên sâu
+│       ├── guidelines.json              #    Kho dữ liệu 8,643 hướng dẫn điều trị
+│       ├── nodes.csv / edges.csv        #    Format CSV cho Bulk Import Neo4j
+│       ├── neo4j_import.cypher          #    Kịch bản Cypher khởi tạo Graph
+│       └── README_DRUGS_GUIDELINES.md   #    Tài liệu mô tả Graph Schema
+│
 ├── image/
-│   ├── raw/          # 4 biểu đồ phân tích dữ liệu thô
-│   └── processed/    # 10 biểu đồ phân tích dữ liệu đã xử lý
-├── src/
-│   ├── main.py       # Entry point chính (xem hướng dẫn bên dưới)
-│   ├── processing/   # 7 module pipeline: Clean → Merge → Translate → Reduce → Export → Discretize → Report
-│   ├── utils/        # Phân tích & Biểu đồ: data_analysis.py, raw_data_analysis.py, quality_report.py
-│   ├── graph/        # Xây dựng Knowledge Graph
-│   └── neo4j/        # Kết nối và đẩy dữ liệu lên Neo4j
-├── requirements.txt
-└── README.md
+│   ├── raw/                              # 📊 Phân tích dữ liệu thô (Pre-processing)
+│   │   ├── raw_1_overview_stats.png     #    Tổng quan: bản ghi, trùng lặp, nhiễu
+│   │   ├── raw_2_field_completeness.png #    Tỷ lệ điền đầy đủ từng trường
+│   │   ├── raw_3_wordcount_boxplot.png  #    Phân bố số lượng từ (Boxplot)
+│   │   ├── raw_4_noise_ratio.png        #    Tỷ lệ nhiễu HTML (Pie chart)
+│   │   └── raw_data_report.md           #    Báo cáo đánh giá thô
+│   │
+│   └── processed/                        # 📊 Phân tích dữ liệu tinh (Post-processing)
+│       ├── 1_overview.png               #    Thống kê tổng quan
+│       ├── 2_sources.png                #    Phân bố theo nguồn web
+│       ├── 3_field_coverage.png         #    Tỷ lệ trường điền đầy đủ
+│       ├── 4_wordcount_distribution.png #    Phân bố số lượng từ
+│       ├── 5_top_diseases.png           #    Top bệnh lý phổ biến
+│       ├── 7_discretization.png         #    Thống kê ICD-10, Mức độ nghiêm trọng
+│       ├── 8_organ_system_distribution.png   # Phân bố bệnh lý theo Hệ Cơ Quan
+│       ├── 9_organ_field_heatmap.png         # Heatmap tỷ lệ điền theo Hệ Cơ Quan
+│       ├── 10_organ_severity_stacked.png     # Tỷ lệ bệnh Cấp cứu/Nặng theo Hệ Cơ Quan
+│       └── 11_organ_disease_type_stacked.png # Phân loại Cấp/Mãn tính theo Hệ Cơ Quan
+│
+├── src/                                  # 💻 SOURCE CODE CHÍNH
+│   ├── main.py                           # 🚪 Entry point điều phối (Pipeline/Analyze/Graph)
+│   │
+│   ├── crawler/                          # 🕷️ Bot thu thập dữ liệu (Scraping)
+│   │   ├── mayo_crawler.py              #    Script cào dữ liệu từ Mayo Clinic
+│   │   └── medlineplus_crawl.py         #    Script cào dữ liệu từ MedlinePlus
+│   │
+│   ├── processing/                       # ⚙️ Hệ thống Data Pipeline (7 Steps)
+│   │   ├── run_pipeline.py              #    Bộ điều khiển trung tâm (CLI Tool)
+│   │   ├── Clean_data.py                #    (1) Khử nhiễu HTML, sửa lỗi Encoding
+│   │   ├── merg_data.py                 #    (2) Trộn 2 nguồn, Deduplicate (SequenceMatcher)
+│   │   ├── translate_data.py            #    (3) Engine dịch thuật đa luồng
+│   │   ├── reduce_data.py               #    (4) Smart Truncation, loại bỏ sparse field
+│   │   ├── export_data.py               #    (5) Formatting & Xuất CSV/JSON
+│   │   └── discretize_data.py           #    (6) Ánh xạ y khoa (ICD-10, Age, Category)
+│   │
+│   ├── utils/                            # 🔧 Công cụ Khai phá (Data Mining)
+│   │   ├── raw_data_analysis.py         #    Vẽ biểu đồ phân tích dữ liệu gốc
+│   │   ├── data_analysis.py             #    Vẽ biểu đồ chuyên sâu Hệ cơ quan (Pandas/Seaborn)
+│   │   └── quality_report.py            #    (7) Engine đánh giá chất lượng cuối cùng
+│   │
+│   ├── graph/                            # 🕸️ Logic xây dựng Đồ thị tri thức
+│   │   ├── data_graph.py                #    Chuyển JSON → Graph cơ bản (Nodes/Edges)
+│   │   ├── enhance_graph_with_drugs_guidelines.py # Tích hợp kiến thức Dược học & Guideline
+│   │   └── summary.py                   #    Phân tích Topology của Graph
+│   │
+│   └── neo4j/                            # 🗄️ Database Connector
+│       └── up_neo4j.py                  #    Auth & Bulk Load dữ liệu lên Neo4j AuraDB
+│
+├── .gitignore                            # Cấu hình Git
+├── requirements.txt                      # 📦 Các thư viện Python (pandas, seaborn, neo4j...)
+└── README.md                             # Tài liệu kiến trúc dự án
 ```
 
 ---
