@@ -1,7 +1,7 @@
 # 📊 Báo Cáo Chất Lượng Dữ Liệu Y Tế
 
-> **Thời gian tạo:** 2026-05-07 22:55:53  
-> **Tổng bản ghi:** 3,014  
+> **Thời gian tạo:** 2026-05-09 13:01:15  
+> **Tổng bản ghi:** 3,298  
 > **Nguồn dữ liệu:** Mayo Clinic + MedlinePlus
 
 ---
@@ -10,38 +10,38 @@
 
 | Trạng thái | Số lượng | Tỷ lệ |
 |-----------|---------|-------|
-| ✅ Dịch hoàn toàn | 2,829 | 93.9% |
-| ⚠️ Còn một phần tiếng Anh | 2 | - |
+| ✅ Dịch hoàn toàn | 3,105 | 94.1% |
+| ⚠️ Còn một phần tiếng Anh | 3 | - |
 | ❌ Phần lớn tiếng Anh | 0 | - |
-| ❌ Chưa dịch tên bệnh | 183 | - |
+| ❌ Chưa dịch tên bệnh | 190 | - |
 | ℹ️ Không có nội dung | 0 | - |
-| **Tổng vấn đề dịch** | - | **6.1%** |
+| **Tổng vấn đề dịch** | - | **5.9%** |
 
 ---
 
 ## 2. 🔤 Chất Lượng Encoding
 
-- **Bản ghi lỗi encoding:** 0 / 3,014 (0.0%)
+- **Bản ghi lỗi encoding:** 0 / 3,298 (0.0%)
 - **Đánh giá:** Tốt
 
 ---
 
 ## 3. 📋 Độ Hoàn Chỉnh Từng Field
 
-- **Bản ghi hoàn chỉnh (≥6 field):** 281 / 3,014 (9.3%)
+- **Bản ghi hoàn chỉnh (≥6 field):** 291 / 3,298 (8.8%)
 
 | Field | Tỷ lệ điền | Avg từ | Đánh giá |
 |-------|-----------|--------|---------|
-| Tổng quan | 51.3% | 131.3 | Trung bình |
-| Triệu chứng | 77.3% | 107.7 | Tốt |
-| Nguyên nhân | 76.7% | 145.9 | Tốt |
-| Yếu tố nguy cơ | 34.9% | 51.8 | Kém |
-| Phòng ngừa | 45.5% | 60.2 | Trung bình |
-| Khi nào gặp bác sĩ | 71.9% | 91.1 | Tốt |
-| Điều trị | 44.5% | 80.3 | Trung bình |
-| Tiên lượng | 64.1% | 41.5 | Trung bình |
-| Biến chứng | 33.2% | 16.4 | Kém |
-| Xét nghiệm/Khám | 44.1% | 50.8 | Trung bình |
+| Tổng quan | 50.1% | 128.8 | Trung bình |
+| Triệu chứng | 77.6% | 106.8 | Tốt |
+| Nguyên nhân | 76.7% | 145.5 | Tốt |
+| Yếu tố nguy cơ | 34.0% | 50.3 | Kém |
+| Phòng ngừa | 44.9% | 58.6 | Trung bình |
+| Khi nào gặp bác sĩ | 71.5% | 89.3 | Tốt |
+| Điều trị | 44.8% | 81.0 | Trung bình |
+| Tiên lượng | 64.3% | 41.5 | Trung bình |
+| Biến chứng | 33.3% | 16.6 | Kém |
+| Xét nghiệm/Khám | 44.4% | 51.3 | Trung bình |
 
 ---
 
@@ -49,41 +49,41 @@
 
 | Chỉ số | Giá trị |
 |--------|---------|
-| Tổng bản ghi | 3,014 |
-| Trùng lặp exact | 0 |
+| Tổng bản ghi | 3,298 |
+| Trùng lặp exact | 62 |
 | Bản ghi có xung đột nguồn | 445 |
 | Tổng field xung đột | 817 |
 
 **Phân bố theo nguồn:**
-- medlineplus: 1,902
-- both: 444
-- mayo: 668
+- medlineplus: 2,112
+- both: 461
+- mayo: 725
 
 ---
 
 ## 5. 🏥 Độ Bao Phủ ICD-10
 
-- **Có mã ICD:** 392 / 3,014 (**13.0%**)
+- **Có mã ICD:** 453 / 3,298 (**13.7%**)
 - **Đánh giá:** Cần cải thiện
 
 **Phân bố theo chapter ICD:**
 
 | Chapter | Số lượng |
 |---------|---------|
-| C – Ung thư | 63 |
-| J – Hô hấp | 61 |
-| I – Tim mạch | 34 |
-| F – Tâm thần & hành vi | 33 |
-| G – Thần kinh | 30 |
-| A – Bệnh nhiễm khuẩn & ký sinh trùng | 28 |
-| E – Nội tiết & chuyển hóa | 27 |
-| D – U lành & rối loạn máu | 23 |
+| C – Ung thư | 80 |
+| J – Hô hấp | 70 |
+| I – Tim mạch | 40 |
+| F – Tâm thần & hành vi | 35 |
+| G – Thần kinh | 34 |
+| E – Nội tiết & chuyển hóa | 32 |
+| A – Bệnh nhiễm khuẩn & ký sinh trùng | 31 |
+| D – U lành & rối loạn máu | 26 |
+| B – Bệnh nhiễm khuẩn & virus | 25 |
+| M – Cơ xương khớp | 20 |
 | H – Mắt & Tai | 19 |
-| M – Cơ xương khớp | 19 |
-| B – Bệnh nhiễm khuẩn & virus | 19 |
+| N – Sinh dục & tiết niệu | 15 |
 | L – Da liễu | 13 |
-| N – Sinh dục & tiết niệu | 12 |
-| K – Tiêu hóa | 11 |
+| K – Tiêu hóa | 13 |
 
 ---
 
@@ -91,32 +91,32 @@
 
 | Nhóm bệnh | Số lượng | Tỷ lệ |
 |----------|---------|-------|
-| Tim mạch | 824 | 27.3% |
-| Ung thư | 647 | 21.5% |
-| Nhiễm khuẩn & Virus | 519 | 17.2% |
-| Thần kinh & Tâm thần | 380 | 12.6% |
-| Cơ xương khớp | 128 | 4.2% |
-| Tiêu hóa | 117 | 3.9% |
-| Da liễu | 106 | 3.5% |
-| Nội tiết & Chuyển hóa | 87 | 2.9% |
-| Khác | 82 | 2.7% |
-| Hô hấp | 51 | 1.7% |
-| Mắt & Tai | 41 | 1.4% |
-| Sinh dục & Tiết niệu | 30 | 1.0% |
+| Tim mạch | 907 | 27.5% |
+| Ung thư | 707 | 21.4% |
+| Nhiễm khuẩn & Virus | 566 | 17.2% |
+| Thần kinh & Tâm thần | 423 | 12.8% |
+| Cơ xương khớp | 132 | 4.0% |
+| Tiêu hóa | 131 | 4.0% |
+| Da liễu | 112 | 3.4% |
+| Nội tiết & Chuyển hóa | 98 | 3.0% |
+| Khác | 90 | 2.7% |
+| Hô hấp | 55 | 1.7% |
+| Mắt & Tai | 44 | 1.3% |
+| Sinh dục & Tiết niệu | 31 | 0.9% |
 | Miễn dịch & Tự miễn | 2 | 0.1% |
 
 **Phân loại mãn tính / cấp tính:**
 
-- Không xác định: 1,869 (62.0%)
-- Mãn tính: 729 (24.2%)
-- Cả hai: 210 (7.0%)
-- Cấp tính: 206 (6.8%)
+- Không xác định: 2,039 (61.8%)
+- Mãn tính: 807 (24.5%)
+- Cả hai: 234 (7.1%)
+- Cấp tính: 218 (6.6%)
 
 **Tình trạng lây nhiễm:**
 
-- Không xác định: 2,480 (82.3%)
-- Có lây: 478 (15.9%)
-- Không lây: 56 (1.9%)
+- Không xác định: 2,711 (82.2%)
+- Có lây: 527 (16.0%)
+- Không lây: 60 (1.8%)
 
 ---
 

@@ -7,13 +7,15 @@ Hướng dẫn sử dụng Graph với Drugs & Guidelines
 import json
 import pathlib
 
+ROOT = pathlib.Path(__file__).parent.parent.parent
+
 def print_drugs_summary():
     """In tóm tắt các loại thuốc"""
     print("\n" + "="*70)
     print("📊 DANH SÁCH CÁC LOẠI THUỐC TRONG GRAPH")
     print("="*70)
     
-    drugs_file = pathlib.Path("data/graph/drugs.json")
+    drugs_file = ROOT / "data/graph/drugs.json"
     if drugs_file.exists():
         with open(drugs_file, encoding="utf-8") as f:
             drugs = json.load(f)
@@ -41,7 +43,7 @@ def print_guidelines_sample():
     print("📋 MẪU CÁC HƯỚNG DẪN ĐIỀU TRỊ")
     print("="*70)
     
-    guidelines_file = pathlib.Path("data/graph/guidelines.json")
+    guidelines_file = ROOT / "data/graph/guidelines.json"
     if guidelines_file.exists():
         with open(guidelines_file, encoding="utf-8") as f:
             guidelines = json.load(f)
@@ -63,8 +65,8 @@ def print_graph_stats():
     print("📊 THỐNG KÊ KNOWLEDGE GRAPH")
     print("="*70)
     
-    nodes_file = pathlib.Path("data/graph/nodes_updated.json")
-    edges_file = pathlib.Path("data/graph/edges_updated.json")
+    nodes_file = ROOT / "data/graph/nodes_updated.json"
+    edges_file = ROOT / "data/graph/edges_updated.json"
     
     if nodes_file.exists() and edges_file.exists():
         with open(nodes_file, encoding="utf-8") as f:

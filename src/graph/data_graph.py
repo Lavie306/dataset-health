@@ -39,26 +39,27 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # ── Organ Mapping (Từ khóa ánh xạ Cơ quan từ tên bệnh) ────────────────────────
 ORGAN_MAPPING = [
-    {"name": "Tim", "system": "Hệ tuần hoàn", "keywords": ["tim", "mạch vành", "cơ tim", "huyết áp", "động mạch", "tĩnh mạch", "nhồi máu"]},
-    {"name": "Phổi", "system": "Hệ hô hấp", "keywords": ["phổi", "hô hấp", "phế quản", "hen suyễn", "lao", "tràn dịch màng phổi"]},
-    {"name": "Gan", "system": "Hệ tiêu hóa", "keywords": ["gan", "viêm gan", "xơ gan", "mật"]},
-    {"name": "Dạ dày - Ruột", "system": "Hệ tiêu hóa", "keywords": ["dạ dày", "bao tử", "tá tràng", "tiêu hóa", "ruột", "đại tràng", "trĩ"]},
-    {"name": "Thận - Tiết niệu", "system": "Hệ bài tiết", "keywords": ["thận", "tiết niệu", "bàng quang", "niệu đạo", "sỏi niệu"]},
-    {"name": "Não - Thần kinh", "system": "Hệ thần kinh", "keywords": ["não", "thần kinh", "đột quỵ", "chứng mất trí", "alzheimer", "động kinh", "parkinson", "chóng mặt"]},
-    {"name": "Mắt", "system": "Cơ quan cảm giác", "keywords": ["mắt", "thị giác", "giác mạc", "võng mạc", "thủy tinh thể", "đục", "cườm", "lác"]},
-    {"name": "Xương khớp", "system": "Hệ vận động", "keywords": ["xương", "khớp", "cột sống", "thoái hóa khớp", "loãng xương", "gút", "cơ", "dây chằng"]},
-    {"name": "Da", "system": "Hệ vỏ bọc", "keywords": ["da", "viêm da", "vảy nến", "hắc lào", "lang ben", "mụn", "mề đay", "nấm"]},
-    {"name": "Máu", "system": "Hệ tuần hoàn", "keywords": ["máu", "huyết học", "bạch cầu", "hồng cầu", "tiểu cầu", "thiếu máu", "huyết khối"]},
-    {"name": "Tuyến nội tiết", "system": "Hệ nội tiết", "keywords": ["tuyến giáp", "cường giáp", "suy giáp", "đái tháo đường", "tiểu đường", "nội tiết"]},
-    {"name": "Tai Mũi Họng", "system": "Cơ quan cảm giác / Hô hấp", "keywords": ["tai", "mũi", "họng", "amidan", "viêm xoang", "thanh quản", "viêm mũi"]},
-    {"name": "Hệ sinh dục nữ", "system": "Hệ sinh sản", "keywords": ["tử cung", "buồng trứng", "âm đạo", "kinh nguyệt", "phụ khoa", "tuyến vú", "mang thai"]},
-    {"name": "Hệ sinh dục nam", "system": "Hệ sinh sản", "keywords": ["tuyến tiền liệt", "tinh hoàn", "dương vật", "nam khoa", "tinh trùng"]},
-    {"name": "Tụy", "system": "Hệ tiêu hóa / Hệ nội tiết", "keywords": ["tụy"]},
-    {"name": "Túi mật & Đường mật", "system": "Hệ tiêu hóa", "keywords": ["túi mật", "đường mật", "sỏi mật"]},
-    {"name": "Hệ miễn dịch - Bạch huyết", "system": "Hệ miễn dịch", "keywords": ["miễn dịch", "bạch huyết", "hạch", "lách", "lupus", "hiv", "aids", "tự miễn"]},
-    {"name": "Răng Miệng", "system": "Hệ tiêu hóa", "keywords": ["răng", "nướu", "nha chu", "tủy răng", "lưỡi", "miệng", "sâu răng", "viêm lợi"]},
-    {"name": "Tuyến vú", "system": "Hệ sinh sản", "keywords": ["vú", "tuyến vú", "nhũ hoa", "áp xe vú"]},
-    {"name": "Tóc và Móng", "system": "Hệ vỏ bọc", "keywords": ["tóc", "hói", "rụng tóc", "móng", "nấm móng"]},
+    {"name": "Tim", "system": "Hệ tuần hoàn", "keywords": ["tim", "mạch vành", "cơ tim", "huyết áp", "động mạch", "tĩnh mạch", "nhồi máu"], "excludes": []},
+    {"name": "Phổi", "system": "Hệ hô hấp", "keywords": ["phổi", "hô hấp", "phế quản", "hen suyễn", "lao", "tràn dịch màng phổi"], "excludes": []},
+    {"name": "Gan - Mật", "system": "Hệ tiêu hóa", "keywords": ["gan", "viêm gan", "xơ gan", "mật", "túi mật", "đường mật", "sỏi mật"], "excludes": ["bảo mật"]},
+    {"name": "Dạ dày - Ruột", "system": "Hệ tiêu hóa", "keywords": ["dạ dày", "bao tử", "tá tràng", "tiêu hóa", "ruột", "đại tràng", "trĩ"], "excludes": []},
+    {"name": "Thận - Tiết niệu", "system": "Hệ bài tiết", "keywords": ["thận", "tiết niệu", "bàng quang", "niệu đạo", "sỏi niệu"], "excludes": []},
+    {"name": "Não - Thần kinh", "system": "Hệ thần kinh", "keywords": ["não", "thần kinh", "đột quỵ", "chứng mất trí", "alzheimer", "động kinh", "parkinson", "chóng mặt", "tai biến mạch máu"], "excludes": []},
+    {"name": "Mắt", "system": "Cơ quan cảm giác", "keywords": ["mắt", "thị giác", "giác mạc", "võng mạc", "thủy tinh thể", "đục", "cườm", "lác"], "excludes": ["chóng mặt", "thâm mắt", "rửa mắt", "hoa mắt"]},
+    {"name": "Xương khớp", "system": "Hệ vận động", "keywords": ["xương", "khớp", "cột sống", "thoái hóa khớp", "loãng xương", "gút", "cơ", "dây chằng"], "excludes": ["cơ tim", "cơ trơn", "cơ quan", "cơ năng", "cơ địa", "cơ bắp", "nguy cơ"]},
+    {"name": "Da", "system": "Hệ vỏ bọc", "keywords": ["da", "viêm da", "vảy nến", "hắc lào", "lang ben", "mụn", "mề đay", "nấm", "zona"], "excludes": ["nấm móng", "nấm âm đạo", "nấm miệng"]},
+    {"name": "Máu", "system": "Hệ tuần hoàn", "keywords": ["máu", "huyết học", "bạch cầu", "hồng cầu", "tiểu cầu", "thiếu máu", "huyết khối"], "excludes": ["chảy máu cam", "chảy máu chân răng", "máu tụ", "tai biến mạch máu"]},
+    {"name": "Tuyến nội tiết", "system": "Hệ nội tiết", "keywords": ["tuyến giáp", "cường giáp", "suy giáp", "đái tháo đường", "tiểu đường", "nội tiết"], "excludes": []},
+    {"name": "Tai Mũi Họng", "system": "Cơ quan cảm giác / Hô hấp", "keywords": ["tai", "mũi", "họng", "amidan", "viêm xoang", "thanh quản", "viêm mũi"], "excludes": ["tai biến", "tai nạn", "mũi nhọn", "trái có cuống họng"]},
+    {"name": "Hệ sinh dục nữ", "system": "Hệ sinh sản", "keywords": ["tử cung", "buồng trứng", "âm đạo", "kinh nguyệt", "phụ khoa", "tuyến vú", "mang thai", "tiền mãn kinh"], "excludes": []},
+    {"name": "Hệ sinh dục nam", "system": "Hệ sinh sản", "keywords": ["tuyến tiền liệt", "tinh hoàn", "dương vật", "nam khoa", "tinh trùng"], "excludes": []},
+    {"name": "Tụy", "system": "Hệ tiêu hóa / Hệ nội tiết", "keywords": ["tụy"], "excludes": []},
+    {"name": "Hệ miễn dịch - Bạch huyết", "system": "Hệ miễn dịch", "keywords": ["miễn dịch", "bạch huyết", "hạch", "lách", "lupus", "hiv", "aids", "tự miễn"], "excludes": ["lao hạch"]},
+    {"name": "Răng Miệng", "system": "Hệ tiêu hóa", "keywords": ["răng", "nướu", "nha chu", "tủy răng", "lưỡi", "miệng", "sâu răng", "viêm lợi"], "excludes": ["nấm miệng"]},
+    {"name": "Tuyến vú", "system": "Hệ sinh sản", "keywords": ["vú", "tuyến vú", "nhũ hoa", "áp xe vú"], "excludes": []},
+    {"name": "Tóc và Móng", "system": "Hệ vỏ bọc", "keywords": ["tóc", "hói", "rụng tóc", "móng", "nấm móng"], "excludes": []},
+    {"name": "Tâm lý - Tâm thần", "system": "Hệ thần kinh", "keywords": ["tâm thần", "tâm lý", "trầm cảm", "lo âu", "tự kỷ", "stress", "rối loạn cảm xúc", "rối loạn phổ tự kỷ"], "excludes": []},
+    {"name": "Truyền nhiễm - Toàn thân", "system": "Toàn thân", "keywords": ["sốt", "nhiễm trùng", "truyền nhiễm", "sốt rét", "sốt xuất huyết", "covid", "cúm", "sởi", "thủy đậu", "ký sinh trùng", "giun", "sán", "dịch tả", "béo phì", "suy dinh dưỡng", "sốt phát ban"], "excludes": []}
 ]
 # ── Node type prefix & labels ─────────────────────────────────────────────────
 PREFIX = {
@@ -294,8 +295,19 @@ def build(rows: list[dict]):
         # ─────────────────────────────────────────────────────────────
         name_lower = name_vi.lower()
         for organ_data in ORGAN_MAPPING:
-            # Nếu phát hiện từ khóa trong tên bệnh
-            if any(kw in name_lower for kw in organ_data["keywords"]):
+            # Bỏ qua nếu nằm trong danh sách loại trừ (excludes)
+            excludes = organ_data.get("excludes", [])
+            if any(exc in name_lower for exc in excludes):
+                continue
+            
+            # Sử dụng regex word boundary để khớp chính xác từ khóa
+            match = False
+            for kw in organ_data["keywords"]:
+                if re.search(r'\b' + re.escape(kw) + r'\b', name_lower):
+                    match = True
+                    break
+                    
+            if match:
                 # Tạo node Organ
                 o_id = get_or_create("organs", organ_data["name"], {
                     "system": organ_data["system"]

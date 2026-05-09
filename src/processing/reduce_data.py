@@ -7,7 +7,6 @@ Output: data/processed/translated.json  (in-place, đã giảm/tối ưu)
 
 Tính năng:
   ✅ smart_truncate()        – cắt text theo ranh giới câu, không cắt giữa chừng
-  ✅ fuzzy_dedup()           – phát hiện & loại bản ghi trùng lặp mờ (≥85%)
   ✅ handle_sparse_fields()  – chiến lược cho field prognosis, when_to_see_doc
   ✅ remove_near_empty()     – loại bỏ field có quá ít từ (< MIN_FIELD_WORDS)
   ✅ reduction_report.json   – báo cáo chi tiết: số bản ghi loại, field truncate
@@ -17,7 +16,6 @@ Chạy:
 """
 
 import json, re, pathlib, logging, time
-from difflib import SequenceMatcher
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger("reduce")
@@ -31,7 +29,6 @@ REPORT   = ROOT / "data/processed/reduction_report.json"
 MAX_FIELD_CHARS     = 3000   # Giới hạn mềm: cắt nếu field > 3000 ký tự
 MAX_FIELD_CHARS_HARD = 6000  # Giới hạn cứng: cắt bắt buộc nếu > 6000 ký tự
 MIN_FIELD_WORDS     = 3      # Loại field nếu < 3 từ (coi là gần rỗng)
-FUZZY_THRESHOLD     = 0.85   # Similarity ≥ 85% → coi là trùng lặp
 
 CONTENT_FIELDS = [
     "overview", "symptoms", "causes",
@@ -153,57 +150,6 @@ def handle_sparse_field(record: dict, field: str) -> dict:
 
 
 # =============================================================================
-# FUZZY DEDUP
-# =============================================================================
-
-def normalize_for_compare(name: str) -> str:
-    """Chuẩn hóa tên bệnh để so sánh fuzzy."""
-    name = name.lower().strip()
-    name = re.sub(r"[^a-z0-9\u00c0-\u024f\u1e00-\u1eff ]", " ", name)
-    name = re.sub(r"\s+", " ", name).strip()
-    return name
-
-
-def fuzzy_dedup(records: list[dict], threshold: float = FUZZY_THRESHOLD) -> tuple[list[dict], list[dict]]:
-    """
-    Phát hiện và loại bỏ bản ghi trùng lặp mờ.
-    Giữ lại bản ghi có nhiều nội dung hơn khi 2 bản ghi gần giống nhau.
-    Trả về (kept_records, removed_records).
-    """
-    kept = []
-    removed = []
-    kept_normalized = []
-
-    def total_words(r):
-        return sum(len((r.get(f, "") or "").split()) for f in CONTENT_FIELDS)
-
-    for rec in records:
-        name_norm = normalize_for_compare(rec["disease"])
-        is_dup = False
-
-        for i, kept_name in enumerate(kept_normalized):
-            sim = SequenceMatcher(None, name_norm, kept_name).ratio()
-            if sim >= threshold:
-                is_dup = True
-                log.info(f"  Fuzzy dup ({sim:.2f}): '{rec['disease']}' ≈ '{kept[i]['disease']}'")
-                # Giữ bản ghi có nhiều nội dung hơn
-                if total_words(rec) > total_words(kept[i]):
-                    log.info(f"    → Thay bằng bản phong phú hơn: '{rec['disease']}'")
-                    removed.append(kept[i])
-                    kept[i] = rec
-                    kept_normalized[i] = name_norm
-                else:
-                    removed.append(rec)
-                break
-
-        if not is_dup:
-            kept.append(rec)
-            kept_normalized.append(name_norm)
-
-    return kept, removed
-
-
-# =============================================================================
 # MAIN REDUCTION PIPELINE
 # =============================================================================
 
@@ -268,10 +214,6 @@ def run():
         reduced.append(r)
         all_stats.append(stats)
 
-    # ── Phase 2: Fuzzy dedup ──────────────────────────────────────────────────
-    log.info("Phase 2: Fuzzy dedup…")
-    kept, removed = fuzzy_dedup(reduced, FUZZY_THRESHOLD)
-
     # ── Build report ──────────────────────────────────────────────────────────
     truncated_total  = sum(len(s["truncated_fields"]) for s in all_stats)
     hard_trunc_total = sum(len(s["hard_truncated_fields"]) for s in all_stats)
@@ -280,21 +222,19 @@ def run():
 
     report = {
         "input_records":       len(records),
-        "output_records":      len(kept),
-        "fuzzy_dups_removed":  len(removed),
-        "removed_diseases":    [r["disease"] for r in removed],
+        "output_records":      len(reduced),
         "fields_smart_truncated": truncated_total,
         "fields_hard_truncated":  hard_trunc_total,
         "fields_cleared_near_empty": cleared_total,
         "sparse_fields_auto_filled": sparse_filled,
-        "reduction_ratio":     f"{(1 - len(kept)/len(records))*100:.1f}%" if records else "0%",
+        "reduction_ratio":     f"{(1 - len(reduced)/len(records))*100:.1f}%" if records else "0%",
     }
 
     # ── Save ──────────────────────────────────────────────────────────────────
     OUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(OUT_FILE, "w", encoding="utf-8") as f:
-        json.dump(kept, f, ensure_ascii=False, indent=2)
-    log.info(f"Saved → {OUT_FILE} ({len(kept)} records)")
+        json.dump(reduced, f, ensure_ascii=False, indent=2)
+    log.info(f"Saved → {OUT_FILE} ({len(reduced)} records)")
 
     with open(REPORT, "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
@@ -302,7 +242,6 @@ def run():
     log.info("─" * 55)
     log.info(f"Input records        : {report['input_records']:,}")
     log.info(f"Output records       : {report['output_records']:,}")
-    log.info(f"Fuzzy dups removed   : {report['fuzzy_dups_removed']:,}")
     log.info(f"Smart truncated      : {report['fields_smart_truncated']:,} fields")
     log.info(f"Hard truncated       : {report['fields_hard_truncated']:,} fields")
     log.info(f"Cleared near-empty   : {report['fields_cleared_near_empty']:,} fields")

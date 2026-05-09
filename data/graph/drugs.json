@@ -162,16 +162,16 @@
   },
   {
     "id": "DR024",
-    "name": "Metformin",
-    "generic": "Metformin",
-    "class": "Thuốc tiểu đường",
+    "name": "Testosterone",
+    "generic": "Testosterone",
+    "class": "Hormone nam",
     "type": "Drug"
   },
   {
     "id": "DR025",
-    "name": "Testosterone",
-    "generic": "Testosterone",
-    "class": "Hormone nam",
+    "name": "Metformin",
+    "generic": "Metformin",
+    "class": "Thuốc tiểu đường",
     "type": "Drug"
   },
   {

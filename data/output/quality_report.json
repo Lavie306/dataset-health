@@ -1,205 +1,226 @@
 {
-  "generated_at": "2026-05-07 22:55:53",
+  "generated_at": "2026-05-09 13:01:15",
   "data_source": "discretized.json",
   "translation_quality": {
-    "total_records": 3014,
-    "fully_translated": 2829,
-    "partial_english": 2,
+    "total_records": 3298,
+    "fully_translated": 3105,
+    "partial_english": 3,
     "mostly_english": 0,
-    "not_translated": 183,
+    "not_translated": 190,
     "no_content": 0,
-    "pct_fully_translated": 93.9,
-    "pct_issues": 6.1
+    "pct_fully_translated": 94.1,
+    "pct_issues": 5.9
   },
   "encoding_quality": {
-    "total_records": 3014,
+    "total_records": 3298,
     "records_with_encoding_errors": 0,
     "pct_encoding_errors": 0.0,
     "fields_error_counts": {},
     "encoding_health": "Tốt"
   },
   "field_completeness": {
-    "total_records": 3014,
-    "complete_records": 281,
-    "pct_complete": 9.3,
+    "total_records": 3298,
+    "complete_records": 291,
+    "pct_complete": 8.8,
     "fields": {
       "overview": {
         "label": "Tổng quan",
-        "empty": 1469,
+        "empty": 1646,
         "sparse": 0,
-        "filled": 1545,
-        "pct_filled": 51.3,
-        "avg_words": 131.3,
+        "filled": 1652,
+        "pct_filled": 50.1,
+        "avg_words": 128.8,
         "quality": "Trung bình"
       },
       "symptoms": {
         "label": "Triệu chứng",
-        "empty": 679,
+        "empty": 734,
         "sparse": 4,
-        "filled": 2331,
-        "pct_filled": 77.3,
-        "avg_words": 107.7,
+        "filled": 2560,
+        "pct_filled": 77.6,
+        "avg_words": 106.8,
         "quality": "Tốt"
       },
       "causes": {
         "label": "Nguyên nhân",
-        "empty": 701,
+        "empty": 769,
         "sparse": 0,
-        "filled": 2313,
+        "filled": 2529,
         "pct_filled": 76.7,
-        "avg_words": 145.9,
+        "avg_words": 145.5,
         "quality": "Tốt"
       },
       "risk_factors": {
         "label": "Yếu tố nguy cơ",
-        "empty": 1961,
+        "empty": 2177,
         "sparse": 0,
-        "filled": 1053,
-        "pct_filled": 34.9,
-        "avg_words": 51.8,
+        "filled": 1121,
+        "pct_filled": 34.0,
+        "avg_words": 50.3,
         "quality": "Kém"
       },
       "prevention": {
         "label": "Phòng ngừa",
-        "empty": 1640,
-        "sparse": 4,
-        "filled": 1370,
-        "pct_filled": 45.5,
-        "avg_words": 60.2,
+        "empty": 1811,
+        "sparse": 6,
+        "filled": 1481,
+        "pct_filled": 44.9,
+        "avg_words": 58.6,
         "quality": "Trung bình"
       },
       "when_to_see_doc": {
         "label": "Khi nào gặp bác sĩ",
-        "empty": 848,
+        "empty": 939,
         "sparse": 0,
-        "filled": 2166,
-        "pct_filled": 71.9,
-        "avg_words": 91.1,
+        "filled": 2359,
+        "pct_filled": 71.5,
+        "avg_words": 89.3,
         "quality": "Tốt"
       },
       "treatment": {
         "label": "Điều trị",
-        "empty": 1669,
+        "empty": 1817,
         "sparse": 4,
-        "filled": 1341,
-        "pct_filled": 44.5,
-        "avg_words": 80.3,
+        "filled": 1477,
+        "pct_filled": 44.8,
+        "avg_words": 81.0,
         "quality": "Trung bình"
       },
       "prognosis": {
         "label": "Tiên lượng",
-        "empty": 1045,
-        "sparse": 36,
-        "filled": 1933,
-        "pct_filled": 64.1,
+        "empty": 1141,
+        "sparse": 38,
+        "filled": 2119,
+        "pct_filled": 64.3,
         "avg_words": 41.5,
         "quality": "Trung bình"
       },
       "complications": {
         "label": "Biến chứng",
-        "empty": 2002,
-        "sparse": 12,
-        "filled": 1000,
-        "pct_filled": 33.2,
-        "avg_words": 16.4,
+        "empty": 2187,
+        "sparse": 13,
+        "filled": 1098,
+        "pct_filled": 33.3,
+        "avg_words": 16.6,
         "quality": "Kém"
       },
       "exams_and_tests": {
         "label": "Xét nghiệm/Khám",
-        "empty": 1685,
+        "empty": 1834,
         "sparse": 0,
-        "filled": 1329,
-        "pct_filled": 44.1,
-        "avg_words": 50.8,
+        "filled": 1464,
+        "pct_filled": 44.4,
+        "avg_words": 51.3,
         "quality": "Trung bình"
       }
     }
   },
   "duplicate_summary": {
-    "total_records": 3014,
-    "exact_duplicates": 0,
-    "duplicate_names": [],
+    "total_records": 3298,
+    "exact_duplicates": 62,
+    "duplicate_names": [
+      "đau bụng",
+      "bệnh addison",
+      "rối loạn điều chỉnh",
+      "bệnh alzheimer",
+      "chứng phình động mạch",
+      "cơn hen suyễn",
+      "bệnh liệt bell",
+      "chấy rận",
+      "ung thư xương",
+      "đại tiện không tự chủ",
+      "ung thư vú ở nam giới",
+      "bọ chét",
+      "béo phì ở trẻ em",
+      "xơ gan",
+      "sứt môi và hở hàm ếch",
+      "cắt bỏ ruột non",
+      "bệnh crohn",
+      "dị ứng thuốc",
+      "chứng khó đọc",
+      "bệnh thận giai đoạn cuối"
+    ],
     "source_distribution": {
-      "medlineplus": 1902,
-      "both": 444,
-      "mayo": 668
+      "medlineplus": 2112,
+      "both": 461,
+      "mayo": 725
     },
     "conflict_records": 445,
     "total_conflict_fields": 817
   },
   "icd_coverage": {
-    "total_records": 3014,
-    "with_icd": 392,
-    "without_icd": 2622,
-    "icd_coverage_pct": 13.0,
+    "total_records": 3298,
+    "with_icd": 453,
+    "without_icd": 2845,
+    "icd_coverage_pct": 13.7,
     "chapter_distribution": {
-      "C – Ung thư": 63,
-      "J – Hô hấp": 61,
-      "I – Tim mạch": 34,
-      "F – Tâm thần & hành vi": 33,
-      "G – Thần kinh": 30,
-      "A – Bệnh nhiễm khuẩn & ký sinh trùng": 28,
-      "E – Nội tiết & chuyển hóa": 27,
-      "D – U lành & rối loạn máu": 23,
+      "C – Ung thư": 80,
+      "J – Hô hấp": 70,
+      "I – Tim mạch": 40,
+      "F – Tâm thần & hành vi": 35,
+      "G – Thần kinh": 34,
+      "E – Nội tiết & chuyển hóa": 32,
+      "A – Bệnh nhiễm khuẩn & ký sinh trùng": 31,
+      "D – U lành & rối loạn máu": 26,
+      "B – Bệnh nhiễm khuẩn & virus": 25,
+      "M – Cơ xương khớp": 20,
       "H – Mắt & Tai": 19,
-      "M – Cơ xương khớp": 19,
-      "B – Bệnh nhiễm khuẩn & virus": 19,
+      "N – Sinh dục & tiết niệu": 15,
       "L – Da liễu": 13,
-      "N – Sinh dục & tiết niệu": 12,
-      "K – Tiêu hóa": 11
+      "K – Tiêu hóa": 13
     },
     "coverage_quality": "Cần cải thiện"
   },
   "category_distribution": {
-    "total_records": 3014,
+    "total_records": 3298,
     "category_distribution": {
       "Tim mạch": {
-        "count": 824,
-        "pct": 27.3
+        "count": 907,
+        "pct": 27.5
       },
       "Ung thư": {
-        "count": 647,
-        "pct": 21.5
+        "count": 707,
+        "pct": 21.4
       },
       "Nhiễm khuẩn & Virus": {
-        "count": 519,
+        "count": 566,
         "pct": 17.2
       },
       "Thần kinh & Tâm thần": {
-        "count": 380,
-        "pct": 12.6
+        "count": 423,
+        "pct": 12.8
       },
       "Cơ xương khớp": {
-        "count": 128,
-        "pct": 4.2
+        "count": 132,
+        "pct": 4.0
       },
       "Tiêu hóa": {
-        "count": 117,
-        "pct": 3.9
+        "count": 131,
+        "pct": 4.0
       },
       "Da liễu": {
-        "count": 106,
-        "pct": 3.5
+        "count": 112,
+        "pct": 3.4
       },
       "Nội tiết & Chuyển hóa": {
-        "count": 87,
-        "pct": 2.9
+        "count": 98,
+        "pct": 3.0
       },
       "Khác": {
-        "count": 82,
+        "count": 90,
         "pct": 2.7
       },
       "Hô hấp": {
-        "count": 51,
+        "count": 55,
         "pct": 1.7
       },
       "Mắt & Tai": {
-        "count": 41,
-        "pct": 1.4
+        "count": 44,
+        "pct": 1.3
       },
       "Sinh dục & Tiết niệu": {
-        "count": 30,
-        "pct": 1.0
+        "count": 31,
+        "pct": 0.9
       },
       "Miễn dịch & Tự miễn": {
         "count": 2,
@@ -208,393 +229,106 @@
     },
     "disease_type": {
       "Không xác định": {
-        "count": 1869,
-        "pct": 62.0
+        "count": 2039,
+        "pct": 61.8
       },
       "Mãn tính": {
-        "count": 729,
-        "pct": 24.2
+        "count": 807,
+        "pct": 24.5
       },
       "Cả hai": {
-        "count": 210,
-        "pct": 7.0
+        "count": 234,
+        "pct": 7.1
       },
       "Cấp tính": {
-        "count": 206,
-        "pct": 6.8
+        "count": 218,
+        "pct": 6.6
       }
     },
     "contagious_status": {
       "Không xác định": {
-        "count": 2480,
-        "pct": 82.3
+        "count": 2711,
+        "pct": 82.2
       },
       "Có lây": {
-        "count": 478,
-        "pct": 15.9
+        "count": 527,
+        "pct": 16.0
       },
       "Không lây": {
-        "count": 56,
-        "pct": 1.9
+        "count": 60,
+        "pct": 1.8
       }
     },
     "severity_distribution": {
       "Trung bình": {
-        "count": 1314,
-        "pct": 43.6
+        "count": 1447,
+        "pct": 43.9
       },
       "Nặng": {
-        "count": 1195,
+        "count": 1307,
         "pct": 39.6
       },
       "Đe dọa tính mạng": {
-        "count": 313,
-        "pct": 10.4
+        "count": 338,
+        "pct": 10.2
       },
       "Nhẹ": {
-        "count": 192,
-        "pct": 6.4
+        "count": 206,
+        "pct": 6.2
       }
     },
     "demographic": {
       "Người lớn": {
-        "count": 1968,
-        "pct": 65.3
+        "count": 2145,
+        "pct": 65.0
       },
       "Trẻ em": {
-        "count": 942,
-        "pct": 31.3
+        "count": 1043,
+        "pct": 31.6
       },
       "Người cao tuổi": {
-        "count": 73,
+        "count": 79,
         "pct": 2.4
       },
       "Mọi lứa tuổi": {
         "count": 31,
-        "pct": 1.0
+        "pct": 0.9
       }
     },
     "content_richness": {
       "Trung bình (300-599 từ)": {
-        "count": 836,
-        "pct": 27.7
-      },
-      "Đầy đủ (1000-1999 từ)": {
-        "count": 778,
-        "pct": 25.8
+        "count": 920,
+        "pct": 27.9
       },
       "Khá đầy đủ (600-999 từ)": {
-        "count": 755,
-        "pct": 25.0
+        "count": 841,
+        "pct": 25.5
+      },
+      "Đầy đủ (1000-1999 từ)": {
+        "count": 836,
+        "pct": 25.3
       },
       "Ít (100-299 từ)": {
-        "count": 480,
-        "pct": 15.9
+        "count": 529,
+        "pct": 16.0
       },
       "Rất đầy đủ (≥2000 từ)": {
-        "count": 86,
-        "pct": 2.9
+        "count": 88,
+        "pct": 2.7
       },
       "Rất ít (<100 từ)": {
-        "count": 79,
-        "pct": 2.6
+        "count": 84,
+        "pct": 2.5
       }
     }
   },
   "reduction_summary": {
     "input_records": 3298,
-    "output_records": 3014,
-    "fuzzy_dups_removed": 284,
-    "removed_diseases": [
-      "Viêm tủy mềm cấp tính (AFM)",
-      "Bệnh bạch cầu lymphocytic cấp tính",
-      "Bệnh Addison",
-      "Rối loạn điều chỉnh",
-      "Bệnh Alzheimer",
-      "Ngứa hậu môn",
-      "Chứng phình động mạch",
-      "Phẫu thuật chống trào ngược - trẻ em",
-      "Hội chứng kháng phospholipid",
-      "Hở van động mạch chủ",
-      "Bệnh van động mạch chủ",
-      "Hội chứng Apert",
-      "Cơn hen suyễn",
-      "Viêm gan tự miễn",
-      "Quá liều kẽm Bacitracin",
-      "Bệnh liệt Bell",
-      "Ngộ độc bóng đêm đen",
-      "Đám rối cánh tay",
-      "Chứng phình động mạch",
-      "Ngộ độc canxi hydroxit",
-      "Ngộ độc axit carbolic",
-      "Phẫu thuật động mạch cảnh - mở",
-      "Dị dạng động tĩnh mạch",
-      "Bệnh hen suyễn ở trẻ em",
-      "Phẫu thuật nâng cằm",
-      "Nghẹt thở - người lớn bất tỉnh hoặc trẻ em trên 1 tuổi",
-      "Ung thư biểu mô đám rối màng đệm",
-      "Viêm túi mật mãn tính",
-      "Bệnh bạch cầu lymphocytic mãn tính (CLL)",
-      "Bệnh bạch cầu tủy xương mãn tính (CML)",
-      "Sứt môi và hở hàm ếch",
-      "Sửa sứt môi và hở hàm ếch",
-      "Hẹp van động mạch chủ",
-      "Ngộ độc coban",
-      "Đau bụng",
-      "Ung thư đại tràng",
-      "Polyp đại trực tràng",
-      "Khiếm khuyết chức năng tiểu cầu bẩm sinh",
-      "Bệnh động mạch vành",
-      "Bệnh đơn dây thần kinh sọ III",
-      "Bệnh Crohn",
-      "Ung thư hạch tế bào B",
-      "Huyết khối tĩnh mạch sâu (DVT)",
-      "Dậy thì muộn ở bé trai",
-      "Kỷ lục các mốc phát triển - 18 tháng",
-      "Kỷ lục các mốc phát triển - 2 tháng",
-      "Kỷ lục các mốc phát triển - 12 tháng",
-      "Kỷ lục các mốc phát triển - 4 tháng",
-      "Kỷ lục các mốc phát triển - 4 năm",
-      "Kỷ lục các mốc phát triển - 6 tháng",
-      "Kỷ lục các mốc phát triển - 9 tháng",
-      "Bệnh tiểu đường và bệnh thận",
-      "Quá liều diphenhydramine",
-      "Ngộ độc chất tẩy rửa cống",
-      "Dị ứng thuốc",
-      "Khô miệng",
-      "Ngộ độc thuốc nhuộm",
-      "Chứng khó đọc",
-      "Nhiễm trùng tai - mãn tính",
-      "Bệnh thận giai đoạn cuối",
-      "Polyp nội mạc tử cung",
-      "Thuyên tắc nội mạch",
-      "Entropion",
-      "U nang biểu bì",
-      "Co thắt thực quản",
-      "Viêm màng sàng",
-      "Đau mắt",
-      "Thiếu yếu tố V",
-      "Thiếu yếu tố VII",
-      "Sốt co giật",
-      "Đại tiện không tự chủ",
-      "Rối loạn chức năng thần kinh nách",
-      "U xơ tuyến vú",
-      "Chứng loạn sản sợi",
-      "Bọ chét",
-      "Chứng hoại thư khí",
-      "Bệnh trào ngược dạ dày thực quản (GERD)",
-      "Bệnh trào ngược dạ dày thực quản - trẻ em",
-      "Cúm H1N1 (cúm lợn)",
-      "Ngộ độc thuốc nhuộm tóc",
-      "Ngộ độc thuốc bổ tóc",
-      "Bệnh tay chân miệng",
-      "Khám sức khỏe cho nam giới từ 40 đến 64 tuổi",
-      "Khám sức khỏe cho nam giới từ 65 tuổi trở lên",
-      "Khám sức khỏe cho nam giới từ 18 đến 39 tuổi",
-      "Khám sức khỏe cho phụ nữ từ 40 đến 64 tuổi",
-      "Đau tai",
-      "Không dung nạp lạnh",
-      "Hemophilia",
-      "Hemophilia B",
-      "Viêm gan",
-      "Vắc xin COVID-19 - những điều bạn cần biết",
-      "Viêm gan A",
-      "Viêm gan A - trẻ em",
-      "Vắc-xin viêm gan A - những điều bạn cần biết",
-      "Viêm gan C",
-      "Viêm gan C - trẻ em",
-      "Cao huyết áp ở trẻ sơ sinh - tăng huyết áp",
-      "Ung thư đường mật",
-      "Đau háng",
-      "Bệnh Hirschsprung",
-      "Nhiễm trùng vú",
-      "Bệnh Huntington",
-      "Ngộ độc axit clohydric",
-      "Bệnh cường giáp",
-      "Thiếu máu tán huyết miễn dịch do thuốc",
-      "Răng bị ảnh hưởng",
-      "Tăng chu vi vòng đầu",
-      "Vô kinh",
-      "Móng chân mọc ngược",
-      "Ngộ độc chất tẩy mực",
-      "Viêm bàng quang kẽ",
-      "Sẹo lồi",
-      "Viêm giác mạc kẽ",
-      "Cắt bỏ ruột non",
-      "Viêm nắp thanh quản",
-      "Đau chân",
-      "Bệnh bạch cầu",
-      "Chấy",
-      "Xơ gan",
-      "U mạch máu gan",
-      "Đau thắt lưng - mãn tính",
-      "Lượng đường trong máu thấp do thuốc",
-      "Viêm bạch huyết",
-      "Hệ bạch huyết",
-      "Ung thư vú ở nam giới",
-      "Suy sinh dục",
-      "Vô sinh nữ",
-      "Khối u ác tính ở mắt",
-      "Bệnh Meniere",
-      "Viêm màng não - lao",
-      "Vắc-xin não mô cầu B - những điều bạn cần biết",
-      "Ngộ độc thủy ngân oxit",
-      "Ngộ độc ethanol",
-      "Bệnh van hai lá",
-      "Hẹp van hai lá",
-      "Vắc xin MMRV (sởi, quai bị, rubella và thủy đậu) - những điều bạn cần biết",
-      "Bệnh đơn dây thần kinh sọ VI",
-      "Ốm nghén",
-      "Ung thư sàn miệng",
-      "Loét miệng",
-      "Mucopolysaccharidosis type II",
-      "Mucopolysaccharidosis loại I",
-      "Nhịp tim nhanh nhĩ",
-      "Đa u tân sinh nội tiết, loại 1 (MEN 1)",
-      "Bệnh đơn dây thần kinh",
-      "Chuột rút cơ bắp",
-      "Hội chứng rối loạn sinh tủy",
-      "U nguyên bào thần kinh hạch",
-      "Neurofibromatosis 2",
-      "Bệnh vàng da ở trẻ sơ sinh",
-      "Ngộ độc axit nitric",
-      "Ung thư hạch Hodgkin",
-      "Ung thư hạch không Hodgkin ở trẻ em",
-      "Béo phì ở trẻ em",
-      "Rối loạn ám ảnh cưỡng chế",
-      "Chứng ngưng thở khi ngủ do tắc nghẽn - người lớn",
-      "Sửa chữa thoát vị bẹn",
-      "Rối loạn thách thức chống đối",
-      "Teo dây thần kinh thị giác",
-      "Viêm dây thần kinh thị giác",
-      "Ung thư miệng",
-      "Viêm mào tinh hoàn",
-      "Ung thư xương",
-      "Ngộ độc axit oxalic",
-      "Quá liều oxazepam",
-      "Đau bụng kinh",
-      "Các khối u thần kinh nội tiết",
-      "Phẫu thuật cắt bỏ mỡ",
-      "U tuyến cận giáp",
-      "Bệnh Parkinson",
-      "Còn ống động mạch",
-      "Nuốt tẩy bút chì",
-      "Viêm màng ngoài tim",
-      "Bệnh động mạch ngoại biên (PAD)",
-      "Rối loạn nhân cách",
-      "Quá liều pheniramine",
-      "Quá liều pentobarbital",
-      "Quá liều Pentazocine",
-      "Phenylketonuria",
-      "Nhiễm giun móc",
-      "Viêm phổi",
-      "Tràn dịch màng phổi",
-      "Cây thường xuân độc - cây sồi - cây thù du",
-      "Hội chứng buồng trứng đa nang",
-      "Viêm đa cơ",
-      "Phình động mạch khoeo",
-      "Rối loạn căng thẳng sau chấn thương (PTSD)",
-      "Ngộ độc kali hydroxit",
-      "Viêm tai",
-      "Hội chứng tiền kinh nguyệt (PMS)",
-      "Viêm đường mật nguyên phát",
-      "Viêm đường mật nguyên phát (PBC)",
-      "Quá liều chlorpromazine",
-      "Viêm tuyến tiền liệt - không do vi khuẩn",
-      "Nhiễm toan ở ống thận xa",
-      "Giả suy tuyến cận giáp",
-      "Bệnh vẩy nến",
-      "Rối loạn tâm thần",
-      "Chấy rận",
-      "Rò động tĩnh mạch phổi",
-      "Thuyên tắc phổi",
-      "Rối loạn chức năng thần kinh quay",
-      "Phát ban",
-      "Ung thư đại trực tràng",
-      "Hẹp động mạch thận",
-      "Ung thư biểu mô tế bào thận",
-      "Huyết khối tĩnh mạch thận",
-      "Tắc tĩnh mạch võng mạc",
-      "Viêm sau phúc mạc",
-      "Hội chứng Reye",
-      "Hội chứng Reye",
-      "Bệnh phổi dạng thấp",
-      "Nấm ngoài da trên cơ thể",
-      "Nấm ngoài da",
-      "Rối loạn nhân cách phân liệt",
-      "Cá bọ cạp đốt",
-      "Rối loạn cảm xúc theo mùa",
-      "Quá liều phenobarbital",
-      "Thiếu IgA chọn lọc",
-      "Hội chứng Sheehan",
-      "Nội soi khớp gối",
-      "Ung thư gan",
-      "Gãy xương sọ",
-      "Cắt bỏ ruột non",
-      "Nhỏ so với tuổi thai (SGA)",
-      "Ngộ độc natri cacbonat",
-      "Ngộ độc natri hydroxit",
-      "Ngộ độc chất hàn axit",
-      "Đau hông",
-      "Rối loạn ngôn ngữ ở trẻ em",
-      "Chấn thương tủy sống",
-      "Chấn thương cột sống",
-      "Khối u cột sống",
-      "Ung thư da tế bào vảy",
-      "Căng cơ",
-      "Xuất huyết dưới mảnh vụn",
-      "Hội chứng đột tử ở trẻ sơ sinh (SIDS)",
-      "Ngộ độc chất tẩy rửa",
-      "Ung thư hạch tế bào T",
-      "Viêm động mạch Takayasu",
-      "Nhiễm sán dây cá",
-      "Rối loạn vận động muộn",
-      "Vắc xin DTaP (bạch hầu, uốn ván và ho gà) - những điều bạn cần biết",
-      "Phình động mạch chủ",
-      "Viêm tắc tĩnh mạch",
-      "Bệnh tưa miệng ở trẻ sơ sinh",
-      "Ung thư tuyến cận giáp",
-      "Ung thư tuyến giáp - ung thư biểu mô tủy",
-      "Cắt bỏ tuyến giáp",
-      "Hội chứng Tourette",
-      "Cơn thiếu máu cục bộ thoáng qua",
-      "Hở van ba lá",
-      "Hở van ba lá",
-      "Trisomy 13",
-      "Bệnh xơ cứng củ",
-      "Khối u",
-      "Hội chứng Horner",
-      "Ngộ độc dầu thông",
-      "Bệnh tiểu đường loại 1",
-      "Bệnh tiểu đường loại 1 ở trẻ em",
-      "Rối loạn chức năng thần kinh đùi",
-      "Đau thắt ngực ổn định",
-      "Nhiễm trùng đường tiết niệu - người lớn",
-      "Nhiễm trùng đường tiết niệu - trẻ em",
-      "Polyp tử cung",
-      "Viêm màng bồ đào",
-      "Viêm âm đạo",
-      "Viêm mê đạo",
-      "Thắt ống dẫn trứng",
-      "Sửa chữa thoát vị bụng",
-      "Thông liên thất",
-      "Nhịp tim nhanh trên thất",
-      "Khối u đốt sống",
-      "Thiếu máu do thiếu vitamin",
-      "Ngộ độc thuốc tẩy mụn cóc",
-      "Giảm cân - không chủ ý",
-      "Bệnh Whipple",
-      "Ho gà",
-      "Bệnh Wilson",
-      "Hội chứng Wolff-Parkinson-White (WPW)",
-      "Nhiễm nấm âm đạo",
-      "Ngộ độc thủy tùng",
-      "Con bạn và bệnh cúm"
-    ],
+    "output_records": 3298,
     "fields_smart_truncated": 1,
     "fields_hard_truncated": 0,
     "fields_cleared_near_empty": 0,
     "sparse_fields_auto_filled": 250,
-    "reduction_ratio": "8.6%"
+    "reduction_ratio": "0.0%"
   }
 }
