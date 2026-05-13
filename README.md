@@ -9,13 +9,13 @@
 ## 📐 Tổng quan kiến trúc
 
 ```
-Raw Data (EN)          Pipeline (7 bước)          Output
+Raw Data (EN)          Pipeline (7 bước)          Output & Apps
 ──────────────   →   ──────────────────────   →   ─────────────────────
-Mayo Clinic            1. Clean                    ✅ discretized.json
-MedlinePlus            2. Merge                    ✅ medical_vi.csv
-                       3. Translate (VI)           ✅ Knowledge Graph
-                       4. Reduce                   ✅ Biểu đồ thống kê
-                       5. Export                   ✅ Neo4j Database
+Mayo Clinic            1. Clean                    ✅ discretized.json / CSV
+MedlinePlus            2. Merge                    ✅ Data Warehouse (DuckDB)
+                       3. Translate (VI)           ✅ Web Dashboard (Streamlit)
+                       4. Reduce                   ✅ Knowledge Graph (Neo4j)
+                       5. Export                   ✅ Biểu đồ thống kê
                        6. Discretize
                        7. Quality Report
 ```
@@ -65,6 +65,23 @@ Khai phá sâu sau Discretization. Kết quả lưu tại `image/processed/`.
 | `9_organ_field_heatmap.png` | Heatmap tỷ lệ điền trường theo Hệ Cơ Quan |
 | `10_organ_severity_stacked.png` | Mức độ nguy hiểm theo Hệ Cơ Quan |
 | `11_organ_disease_type_stacked.png` | Cấp tính / Mãn tính theo Hệ Cơ Quan |
+
+---
+
+## 🗄️ Data Warehouse & Dashboard (DuckDB + Streamlit)
+
+Dự án tích hợp mô hình **Data Warehouse** thu gọn sử dụng **DuckDB** kết hợp với giao diện tương tác **Streamlit**.
+
+- **ETL to DuckDB**: Trích xuất dữ liệu từ `discretized.json`, xây dựng cấu trúc **Star Schema** gồm bảng Fact (`fact_disease`) và các bảng Dimension (`dim_category`, `dim_severity`, `dim_source`, `dim_demographic`, `dim_content`).
+- **Dashboard Streamlit**: Giao diện web cho phép xem tổng quan, tự do viết câu lệnh truy vấn SQL trực tiếp vào DuckDB, và duyệt/lọc dữ liệu bệnh.
+
+```bash
+# Bước 1: Build Data Warehouse (Tạo file .duckdb)
+python src/warehouse/etl_to_duckdb.py
+
+# Bước 2: Khởi động Web Dashboard
+streamlit run src/warehouse/dashboard.py
+```
 
 ---
 
@@ -121,6 +138,9 @@ Project/
 │   │   ├── stats.json                   #    Thống kê tổng quan Pipeline
 │   │   ├── quality_report.json          #    Đánh giá chất lượng dữ liệu (JSON)
 │   │   └── quality_report.md            #    Đánh giá chất lượng dữ liệu (Markdown) ✅
+│   │
+│   ├── warehouse/                        # 🗄️ Database phân tích
+│   │   └── medical_dw.duckdb            #    Data Warehouse lưu theo Star Schema (DuckDB)
 │   │
 │   └── graph/                            # 🕸️  Đầu vào Knowledge Graph (Neo4j)
 │       ├── nodes.json                   #    Node bệnh lý cơ bản
@@ -179,8 +199,12 @@ Project/
 │   │   ├── enhance_graph_with_drugs_guidelines.py # Tích hợp kiến thức Dược học & Guideline
 │   │   └── summary.py                   #    Phân tích Topology của Graph
 │   │
-│   └── neo4j/                            # 🗄️ Database Connector
-│       └── up_neo4j.py                  #    Auth & Bulk Load dữ liệu lên Neo4j AuraDB
+│   ├── neo4j/                            # 🗄️ Database Connector
+│   │   └── up_neo4j.py                  #    Auth & Bulk Load dữ liệu lên Neo4j AuraDB
+│   │
+│   └── warehouse/                        # 📊 Kho dữ liệu & Giao diện phân tích
+│       ├── etl_to_duckdb.py             #    ETL Pipeline: JSON -> Star Schema DuckDB
+│       └── dashboard.py                 #    Streamlit Web Dashboard
 │
 ├── .gitignore                            # Cấu hình Git
 ├── requirements.txt                      # 📦 Các thư viện Python (pandas, seaborn, neo4j...)
@@ -218,6 +242,10 @@ python src/processing/run_pipeline.py --steps 6 7        # Chỉ chạy Discreti
 # Phân tích
 python src/utils/raw_data_analysis.py
 python src/utils/data_analysis.py
+
+# Data Warehouse & Dashboard
+python src/warehouse/etl_to_duckdb.py
+streamlit run src/warehouse/dashboard.py
 ```
 
 ---

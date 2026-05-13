@@ -2,7 +2,7 @@ aiohttp
 beautifulsoup4
 lxml
 tqdm
-
+seaborn
 pandas
 numpy
 
@@ -18,3 +18,6 @@ torch
 scikit-learn
 
 neo4j
+
+duckdb
+streamlit
