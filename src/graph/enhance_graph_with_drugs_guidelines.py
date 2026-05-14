@@ -307,8 +307,20 @@ def build_drug_and_guideline_graph(
         json.dump(updated_nodes, f, ensure_ascii=False, indent=2)
     log.info(f"✓ Đã cập nhật {len(updated_nodes)} nodes (thêm {len(drug_nodes)} drugs + {len(guideline_nodes)} guidelines)")
     
-    # Cập nhật edges.json
+    # Cập nhật edges.json (dedup edges trùng lặp)
     updated_edges = existing_edges + new_edges
+    seen_edge_keys = set()
+    deduped_edges = []
+    for e in updated_edges:
+        key = (e["src_id"], e["relation"], e["dst_id"])
+        if key not in seen_edge_keys:
+            seen_edge_keys.add(key)
+            deduped_edges.append(e)
+    dup_count = len(updated_edges) - len(deduped_edges)
+    if dup_count > 0:
+        log.info(f"  🔄 Đã loại {dup_count} edges trùng lặp")
+    updated_edges = deduped_edges
+    
     updated_edges_file = output_dir / "edges_updated.json"
     with open(updated_edges_file, "w", encoding="utf-8") as f:
         json.dump(updated_edges, f, ensure_ascii=False, indent=2)

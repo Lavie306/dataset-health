@@ -12,13 +12,20 @@ Tối ưu tốc độ:
 Cài đặt: pip install deep-translator
 """
 
-import json, os, pathlib, logging, time, re
+import json, os, pathlib, logging, time, re, sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from deep_translator import GoogleTranslator
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger("translate")
 
 ROOT      = pathlib.Path(__file__).parent.parent.parent
+PIPELINE_DIR = pathlib.Path(__file__).parent
+if str(PIPELINE_DIR) not in sys.path:
+    sys.path.insert(0, str(PIPELINE_DIR))
+
+from medical_glossary import apply_glossary
+
 IN_FILE   = ROOT / "data/processed/merged.json"
 OUT_FILE  = ROOT / "data/processed/translated.json"
 CKPT_FILE = ROOT / "data/processed/translate_checkpoint.json"
@@ -44,8 +51,6 @@ def translate_batch(texts: list[str], retries: int = 4) -> list[str] | None:
     Gom nhiều đoạn text bằng SEP → 1 request → split kết quả.
     Tiết kiệm 10x số request so với gọi riêng từng field.
     """
-    from deep_translator import GoogleTranslator
-
     joined = SEP.join(texts)
 
     # Nếu quá dài → chunk theo SEP boundary
@@ -101,7 +106,6 @@ def _translate_chunked(texts: list[str], retries: int) -> list[str]:
 
 def _translate_one_by_one(texts: list[str], retries: int) -> list[str]:
     """Fallback: dịch từng text riêng lẻ."""
-    from deep_translator import GoogleTranslator
     results = []
     for t in texts:
         try:
@@ -113,9 +117,6 @@ def _translate_one_by_one(texts: list[str], retries: int) -> list[str]:
     return results
 
 
-# =============================================================================
-# TRANSLATE ONE RECORD  – chỉ 1 API call
-# =============================================================================
 def translate_record(record: dict) -> dict:
     translated             = dict(record)
     translated["disease_en"] = record["disease"]
@@ -137,7 +138,7 @@ def translate_record(record: dict) -> dict:
     results = translate_batch(texts_to_translate)
 
     for key, result in zip(keys_to_translate, results):
-        translated[key] = result
+        translated[key] = apply_glossary(result)
 
     return translated
 
@@ -164,13 +165,6 @@ def save_checkpoint(done: dict):
 # MAIN
 # =============================================================================
 def run():
-    try:
-        from deep_translator import GoogleTranslator
-        log.info("✓ deep-translator OK")
-    except ImportError:
-        log.error("Chưa cài deep-translator! Chạy: pip install deep-translator")
-        return
-
     log.info(f"Loading {IN_FILE} ...")
     with open(IN_FILE, encoding="utf-8") as f:
         records = json.load(f)
@@ -219,8 +213,15 @@ def run():
                 f"| ETA {eta/60:.1f} phút"
             )
 
-    # Xuất theo thứ tự gốc
-    output = [done.get(r["disease"], r) for r in records]
+    # Xuất theo thứ tự gốc, áp glossary lại để cả checkpoint cũ cũng được chuẩn hóa.
+    output = []
+    normalized_fields = ["disease", *TRANSLATE_FIELDS]
+    for r in records:
+        rec = dict(done.get(r["disease"], r))
+        for field in normalized_fields:
+            if isinstance(rec.get(field), str):
+                rec[field] = apply_glossary(rec[field])
+        output.append(rec)
     OUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(OUT_FILE, "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)

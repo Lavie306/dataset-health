@@ -125,8 +125,9 @@ DISEASE_ALIASES: dict[str, str] = {
 CONFLICT_SIMILARITY_THRESHOLD = 0.3  # Nếu similarity < 30% → conflict
 MIN_WORDS_FOR_CONFLICT_CHECK = 20    # Chỉ check nếu cả 2 field có ≥ 20 từ
 
-# ── (NEW) Fuzzy dedup threshold ───────────────────────────────────────────────
-FUZZY_DEDUP_THRESHOLD = 0.88         # Similarity ≥ 88% → coi là trùng
+# ── (NEW) Fuzzy duplicate review threshold ───────────────────────────────────
+# Chỉ dùng để gợi ý kiểm tra thủ công. Không tự động xoá bệnh chỉ vì tên giống nhau.
+FUZZY_DUP_REVIEW_THRESHOLD = 0.92    # Similarity ≥ 92% → nghi ngờ trùng
 
 
 # =============================================================================
@@ -193,14 +194,14 @@ def detect_conflict(field: str, a: str, b: str) -> bool:
     return sim < CONFLICT_SIMILARITY_THRESHOLD
 
 
-def is_fuzzy_duplicate(name1: str, name2: str) -> bool:
-    """Kiểm tra 2 tên bệnh có gần giống nhau không (fuzzy match)."""
+def is_fuzzy_duplicate_candidate(name1: str, name2: str) -> bool:
+    """Kiểm tra 2 tên bệnh có thể là trùng để review thủ công."""
     k1 = normalize_key(name1)
     k2 = normalize_key(name2)
     if k1 == k2:
         return True
     ratio = SequenceMatcher(None, k1, k2).ratio()
-    return ratio >= FUZZY_DEDUP_THRESHOLD
+    return ratio >= FUZZY_DUP_REVIEW_THRESHOLD
 
 
 # =============================================================================
@@ -252,31 +253,26 @@ def merge_records(mayo_rec: dict, medline_rec: dict) -> dict:
     return merged
 
 
-def fuzzy_dedup(records: list[dict]) -> tuple[list[dict], int]:
+def find_fuzzy_duplicate_candidates(records: list[dict]) -> list[tuple[str, str]]:
     """
-    Phát hiện và loại bỏ các bản ghi trùng lặp mờ (sau exact merge).
-    Trả về (deduplicated_records, removed_count).
+    Phát hiện các cặp tên bệnh nghi ngờ trùng lặp mờ (sau exact merge).
+    Không tự động loại bỏ vì fuzzy match dễ ghép sai bệnh trong domain y khoa.
     """
-    kept = []
-    removed = 0
+    candidates = []
     seen_names = []  # List để so sánh fuzzy
 
     for rec in records:
         name = rec["disease"].lower()
-        is_dup = False
 
         for seen_name in seen_names:
-            if is_fuzzy_duplicate(name, seen_name):
-                is_dup = True
-                log.info(f"  Fuzzy dup: '{rec['disease']}' ≈ '{seen_name}' → loại bỏ")
-                removed += 1
+            if is_fuzzy_duplicate_candidate(name, seen_name):
+                candidates.append((rec["disease"], seen_name))
+                log.info(f"  Fuzzy candidate: '{rec['disease']}' ≈ '{seen_name}'")
                 break
 
-        if not is_dup:
-            kept.append(rec)
-            seen_names.append(name)
+        seen_names.append(name)
 
-    return kept, removed
+    return candidates
 
 
 def run():
@@ -339,9 +335,10 @@ def run():
     # ── Sort alphabetically ───────────────────────────────────────────────────
     merged_records.sort(key=lambda r: r["disease"].lower())
 
-    # ── (NEW) Fuzzy dedup pass ────────────────────────────────────────────────
-    log.info("Fuzzy dedup pass…")
-    merged_records, fuzzy_removed = fuzzy_dedup(merged_records)
+    # ── (NEW) Fuzzy duplicate review pass ─────────────────────────────────────
+    # Không tự động xoá: thuật toán fuzzy match có thể ghép sai bệnh
+    # (VD: anal cancer ≈ adrenal cancer). Chỉ log candidate để kiểm tra thủ công.
+    fuzzy_candidates = find_fuzzy_duplicate_candidates(merged_records)
 
     # ── Stats ─────────────────────────────────────────────────────────────────
     only_mayo    = sum(1 for r in merged_records if r["source"] == "mayo")
@@ -358,7 +355,7 @@ def run():
     log.info(f"  matched (both)     : {both:,}")
     log.info(f"  mayo only          : {only_mayo:,}")
     log.info(f"  medlineplus only   : {only_medline:,}")
-    log.info(f"  fuzzy dups removed : {fuzzy_removed:,}")
+    log.info(f"  fuzzy dup candidates: {len(fuzzy_candidates):,}")
     log.info(f"  conflict records   : {conflicts:,} ({total_conflict_fields} fields)")
     log.info(f"Saved → {OUT_FILE}")
     log.info(f"Done in {time.time()-t0:.1f}s")

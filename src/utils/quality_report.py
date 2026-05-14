@@ -21,7 +21,7 @@ Chạy:
   cd src/utils && python quality_report.py
 """
 
-import json, re, pathlib, logging, time
+import json, re, pathlib, logging, time, sys
 from collections import Counter
 from datetime import datetime
 
@@ -29,6 +29,11 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger("quality_report")
 
 ROOT = pathlib.Path(__file__).parent.parent.parent
+PROCESSING_DIR = ROOT / "src" / "processing"
+if str(PROCESSING_DIR) not in sys.path:
+    sys.path.insert(0, str(PROCESSING_DIR))
+
+from medical_glossary import glossary_remaining_hits, load_glossary
 
 # Input files (ưu tiên discretized, fallback translated)
 DISCRETIZED_FILE   = ROOT / "data/processed/discretized.json"
@@ -301,6 +306,33 @@ def analyze_categories(records: list[dict]) -> dict:
     }
 
 
+def analyze_glossary_compliance(records: list[dict]) -> dict:
+    """Find source/incorrect glossary terms that still appear after normalization."""
+    total = len(records)
+    records_with_hits = 0
+    term_counts: Counter = Counter()
+
+    for rec in records:
+        record_hits = set()
+        for field in ["disease", *CONTENT_FIELDS]:
+            val = rec.get(field, "") or ""
+            for term in glossary_remaining_hits(val):
+                record_hits.add(term)
+                term_counts[term] += 1
+        if record_hits:
+            records_with_hits += 1
+
+    issue_ratio = records_with_hits / total if total else 0
+    return {
+        "glossary_terms": len(load_glossary()),
+        "records_with_unstandardized_terms": records_with_hits,
+        "pct_records_with_unstandardized_terms": round(issue_ratio * 100, 2),
+        "top_unstandardized_terms": dict(term_counts.most_common(20)),
+        "quality": "Tốt" if issue_ratio < 0.02 else
+                   "Cần xem xét" if issue_ratio < 0.1 else "Cần chuẩn hóa thêm",
+    }
+
+
 # =============================================================================
 # MARKDOWN REPORT GENERATOR
 # =============================================================================
@@ -313,6 +345,7 @@ def generate_markdown(report: dict) -> str:
     s4 = report["duplicate_summary"]
     s5 = report["icd_coverage"]
     s6 = report["category_distribution"]
+    s7 = report["glossary_compliance"]
 
     lines = [
         f"# 📊 Báo Cáo Chất Lượng Dữ Liệu Y Tế",
@@ -429,6 +462,23 @@ def generate_markdown(report: dict) -> str:
         f"",
         f"---",
         f"",
+        f"## 7. Chuẩn Hóa Thuật Ngữ Y Khoa",
+        f"",
+        f"- **Số thuật ngữ trong glossary:** {s7['glossary_terms']:,}",
+        f"- **Bản ghi còn thuật ngữ chưa chuẩn:** {s7['records_with_unstandardized_terms']:,} / {s1['total_records']:,} ({s7['pct_records_with_unstandardized_terms']}%)",
+        f"- **Đánh giá:** {s7['quality']}",
+        f"",
+    ]
+
+    if s7["top_unstandardized_terms"]:
+        lines += ["| Thuật ngữ còn sót | Số lần |", "|---|---:|"]
+        for term, cnt in s7["top_unstandardized_terms"].items():
+            lines.append(f"| {term} | {cnt} |")
+        lines.append("")
+
+    lines += [
+        f"---",
+        f"",
         f"*Báo cáo được tạo tự động bởi `quality_report.py`*",
     ]
 
@@ -469,6 +519,9 @@ def run():
     log.info("Analyzing category distribution…")
     s6 = analyze_categories(records)
 
+    log.info("Analyzing medical glossary compliance…")
+    s7 = analyze_glossary_compliance(records)
+
     # Reduction report (if available)
     reduction = {}
     if REDUCTION_REPORT.exists():
@@ -484,6 +537,7 @@ def run():
         "duplicate_summary":     s4,
         "icd_coverage":          s5,
         "category_distribution": s6,
+        "glossary_compliance":   s7,
         "reduction_summary":     reduction,
     }
 
@@ -505,6 +559,7 @@ def run():
     log.info(f"📋 Hoàn chỉnh fields : {s3['pct_complete']}%")
     log.info(f"🔁 Trùng lặp exact   : {s4['exact_duplicates']}")
     log.info(f"🏥 ICD coverage      : {s5['icd_coverage_pct']}%")
+    log.info(f"Thuật ngữ chưa chuẩn : {s7['pct_records_with_unstandardized_terms']}% records")
     log.info(f"Done in {time.time()-t0:.1f}s")
 
 

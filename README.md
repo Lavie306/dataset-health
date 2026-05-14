@@ -263,10 +263,23 @@ WHERE d.severity_level IN ["Nặng", "Đe dọa tính mạng"]
 RETURN d.name AS Disease, d.severity_level AS Severity
 ORDER BY Severity
 
-// Bệnh mãn tính có hướng dẫn điều trị
-MATCH (d:Disease)-[:HAS_GUIDELINE]->(g:Guideline)
-WHERE d.disease_type = "Mãn tính"
-RETURN d.name, g.content LIMIT 10
+```
+
+---
+
+## 🗄️ Data Warehouse & Dashboard (DuckDB + Streamlit)
+
+Dự án tích hợp mô hình **Data Warehouse** thu gọn sử dụng **DuckDB** theo cấu trúc **Star Schema** để phục vụ phân tích hiệu năng cao.
+
+- **ETL Pipeline**: Trích xuất dữ liệu từ `discretized.json` vào bảng Fact (`fact_disease`) và các bảng Dimension.
+- **Web Dashboard**: Giao diện Streamlit cho phép truy vấn SQL trực tiếp và trực quan hóa các chỉ số y tế.
+
+```bash
+# 1. Xây dựng Kho dữ liệu (Tạo file .duckdb)
+python src/warehouse/etl_to_duckdb.py
+
+# 2. Khởi chạy Giao diện Dashboard
+streamlit run src/warehouse/dashboard.py
 ```
 
 ---

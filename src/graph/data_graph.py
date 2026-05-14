@@ -73,6 +73,7 @@ PREFIX = {
     "treatments": "TR",
     "guidelines": "G",
     "categories": "CAT",
+    "causes": "CA",
 }
 
 NODE_LABELS = {
@@ -86,6 +87,7 @@ NODE_LABELS = {
     "treatments": "Treatment",
     "guidelines": "Guideline",
     "categories": "Category",
+    "causes": "Cause",
 }
 
 # ── field CSV → category MEDICAL_DATA ────────────────────────────────────────

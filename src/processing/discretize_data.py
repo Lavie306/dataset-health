@@ -66,6 +66,9 @@ ICD10_MAP: dict[str, str] = {
     # Rối loạn nội tiết & chuyển hóa (E00–E90)
     "hypothyroidism": "E03", "suy giáp": "E03",
     "hyperthyroidism": "E05", "cường giáp": "E05",
+    "central diabetes insipidus": "E23.2",
+    "diabetes insipidus": "E23.2",
+    "nephrogenic diabetes insipidus": "N25.1",
     "diabetes mellitus": "E11", "diabetes": "E11", "tiểu đường": "E11",
     "type 1 diabetes": "E10", "type 2 diabetes": "E11",
     "obesity": "E66", "béo phì": "E66",
@@ -115,9 +118,12 @@ ICD10_MAP: dict[str, str] = {
     "copd": "J44", "chronic obstructive pulmonary disease": "J44",
     "pulmonary fibrosis": "J84",
     "sleep apnea": "G47.3", "ngưng thở khi ngủ": "G47.3",
+    "heatstroke": "T67.0", "heat stroke": "T67.0", "say nắng": "T67.0",
 
     # Tiêu hóa (K00–K95)
-    "gastroesophageal reflux": "K21", "gerd": "K21", "trào ngược": "K21",
+    "gastroesophageal reflux": "K21", "gerd": "K21",
+    "gastroesophageal reflux disease": "K21",
+    "vesicoureteral reflux": "N13.7", "reflux nephropathy": "N13.7",
     "peptic ulcer": "K25", "loét dạ dày": "K25",
     "irritable bowel syndrome": "K58", "ibs": "K58",
     "crohn disease": "K50", "ulcerative colitis": "K51",
@@ -190,7 +196,8 @@ DISEASE_CATEGORIES: list[tuple[str, list[str]]] = [
         "insomnia", "mất ngủ", "ptsd",
     ]),
     ("Nhiễm khuẩn & Virus", [
-        "infection", "nhiễm", "viêm gan", "hepatitis", "hiv", "aids",
+        "infection", "nhiễm trùng", "nhiễm khuẩn", "nhiễm virus", "nhiễm nấm",
+        "viêm gan", "hepatitis", "hiv", "aids",
         "tuberculosis", "lao", "pneumonia", "viêm phổi",
         "influenza", "dengue", "malaria", "sepsis", "bacterial",
         "viral", "fungal", "parasitic", "covid",
@@ -209,6 +216,7 @@ DISEASE_CATEGORIES: list[tuple[str, list[str]]] = [
         "gan", "liver", "dạ dày", "stomach", "ruột", "bowel",
         "intestin", "colon", "gallbladder", "mật", "tụy", "pancreas",
         "gastro", "digest", "ulcer", "loét", "cirrhosis", "xơ gan",
+        "reflux", "trào ngược",
     ]),
     ("Cơ xương khớp", [
         "xương", "bone", "khớp", "joint", "arthritis", "viêm khớp",
@@ -216,7 +224,7 @@ DISEASE_CATEGORIES: list[tuple[str, list[str]]] = [
         "lupus", "gout", "scoliosis",
     ]),
     ("Da liễu", [
-        "da", "skin", "dermatitis", "eczema", "chàm",
+        "skin", "dermatitis", "viêm da", "bệnh da", "eczema", "chàm",
         "psoriasis", "vảy nến", "acne", "mụn", "rash",
         "urticaria", "mề đay", "rosacea", "alopecia", "tóc",
     ]),
@@ -225,9 +233,13 @@ DISEASE_CATEGORIES: list[tuple[str, list[str]]] = [
         "bàng quang", "bladder", "prostate", "tuyến tiền liệt",
         "phụ khoa", "gynecol", "buồng trứng", "ovarian",
         "tử cung", "uterus", "endometriosis",
+        "tinh hoàn", "testicle", "testicular", "orchitis",
+        "epididymitis", "mào tinh hoàn", "ống dẫn tinh", "vasectomy",
+        "bìu", "scrotum", "scrotal", "dương vật", "penis", "penile",
+        "niệu đạo", "urethra", "urethral", "sinh dục", "genital",
     ]),
     ("Mắt & Tai", [
-        "mắt", "eye", "vision", "retina", "glaucoma", "cataract",
+        "mắt", "eye", "vision", "retina", "glaucoma", "cataract", "cataracts",
         "tai", "ear", "hearing", "tinnitus", "vertigo", "chóng mặt",
     ]),
     ("Miễn dịch & Tự miễn", [
@@ -235,6 +247,18 @@ DISEASE_CATEGORIES: list[tuple[str, list[str]]] = [
         "dị ứng", "rheumatoid", "lupus", "sjogren", "hashimoto",
     ]),
     ("Khác", []),  # Fallback
+]
+
+CATEGORY_OVERRIDES: list[tuple[str, list[str]]] = [
+    ("Khác", ["heatstroke", "heat stroke", "say nắng"]),
+    ("Sinh dục & Tiết niệu", [
+        "vesicoureteral reflux", "reflux nephropathy",
+        "trào ngược bàng quang niệu quản", "bệnh thận trào ngược",
+    ]),
+    ("Tiêu hóa", [
+        "gastroesophageal reflux", "gerd", "infant reflux",
+        "anti-reflux surgery", "bile reflux",
+    ]),
 ]
 
 # =============================================================================
@@ -339,6 +363,48 @@ def full_text(record: dict) -> str:
     return " ".join(parts)
 
 
+def disease_name_text(record: dict) -> str:
+    """Tên bệnh là tín hiệu phân loại mạnh hơn nội dung mô tả dài."""
+    return " ".join([
+        record.get("disease", "") or "",
+        record.get("disease_en", "") or "",
+    ])
+
+
+def contains_keyword(text: str, keyword: str) -> bool:
+    """Match keyword theo ranh giới từ để tránh 'da' match nhầm trong từ khác."""
+    if not text or not keyword:
+        return False
+    pattern = re.compile(r"(?<!\w)" + re.escape(keyword.lower()) + r"(?!\w)", re.IGNORECASE)
+    return bool(pattern.search(text.lower()))
+
+
+def category_from_text(text: str) -> str:
+    for category_name, keywords in DISEASE_CATEGORIES[:-1]:  # Bỏ "Khác"
+        if any(contains_keyword(text, kw) for kw in keywords):
+            return category_name
+    return "Khác"
+
+
+def category_override_from_name(text: str) -> str | None:
+    for category_name, keywords in CATEGORY_OVERRIDES:
+        if any(contains_keyword(text, kw) for kw in keywords):
+            return category_name
+    return None
+
+
+def lookup_icd10_by_name(name: str) -> str:
+    """Match ICD terms using exact or word-boundary partial matches."""
+    if not name:
+        return ""
+    if name in ICD10_MAP:
+        return ICD10_MAP[name]
+    for key, code in sorted(ICD10_MAP.items(), key=lambda item: len(item[0]), reverse=True):
+        if len(key) > 2 and contains_keyword(name, key):
+            return code
+    return ""
+
+
 # =============================================================================
 # DISCRETIZATION FUNCTIONS
 # =============================================================================
@@ -348,31 +414,23 @@ def assign_icd10(record: dict) -> str:
     name_vi  = normalize_name(record.get("disease", ""))
     name_en  = normalize_name(record.get("disease_en", "") or record.get("disease", ""))
 
-    # Tra cứu trực tiếp
-    if name_en in ICD10_MAP:
-        return ICD10_MAP[name_en]
-    if name_vi in ICD10_MAP:
-        return ICD10_MAP[name_vi]
-
-    # Partial match — tìm key nào là substring của tên bệnh
-    for key, code in ICD10_MAP.items():
-        if key in name_en or key in name_vi:
-            return code
-        if len(key) > 5 and (key in name_en or key in name_vi):
-            return code
-
-    return ""  # Chưa có mã ICD
+    return lookup_icd10_by_name(name_en) or lookup_icd10_by_name(name_vi)
 
 
 def assign_category(record: dict) -> str:
     """Phân loại bệnh vào 1 trong 13 nhóm."""
-    text = full_text(record).lower()
-
-    for category_name, keywords in DISEASE_CATEGORIES[:-1]:  # Bỏ "Khác"
-        if any(kw in text for kw in keywords):
-            return category_name
-
-    return "Khác"
+    # Ưu tiên tên bệnh; chỉ fallback sang nội dung sau khi đã lọc keyword quá rộng.
+    name_text = disease_name_text(record)
+    override = category_override_from_name(name_text)
+    if override is not None:
+        return override
+    by_name = category_from_text(name_text)
+    if by_name != "Khác":
+        return by_name
+    override = category_override_from_name(full_text(record))
+    if override is not None:
+        return override
+    return category_from_text(full_text(record))
 
 
 def assign_chronic_acute(record: dict) -> str:

@@ -14,14 +14,22 @@ CSV columns: disease_vi, disease_en, source, url,
              exams_and_tests, when_to_see_doc
 """
 
-import json, csv, pathlib, logging, time, re
+import json, csv, pathlib, logging, time, re, sys
 from collections import Counter
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger("export")
 
-IN_FILE  = pathlib.Path("../../data/processed/translated.json")
-OUT_DIR  = pathlib.Path("../../data/output")
+ROOT = pathlib.Path(__file__).parent.parent.parent
+PIPELINE_DIR = pathlib.Path(__file__).parent
+if str(PIPELINE_DIR) not in sys.path:
+    sys.path.insert(0, str(PIPELINE_DIR))
+
+from medical_glossary import apply_glossary
+
+TRANSLATED_FILE = ROOT / "data/processed/translated.json"
+REDUCED_FILE    = ROOT / "data/processed/reduced.json"
+OUT_DIR  = ROOT / "data/output"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 CSV_FIELDS = [
@@ -59,8 +67,18 @@ def prepare_record(rec: dict) -> dict:
         elif f == "disease_en":
             # Fallback: if not set, use disease (untranslated source)
             val = rec.get("disease_en") or rec.get("disease", "")
+        elif isinstance(val, str):
+            val = apply_glossary(val)
         out[f] = val or ""
     return out
+
+
+def select_input_file() -> pathlib.Path:
+    """Prefer reduced.json when it is current; otherwise export translated.json."""
+    if REDUCED_FILE.exists():
+        if not TRANSLATED_FILE.exists() or REDUCED_FILE.stat().st_mtime >= TRANSLATED_FILE.stat().st_mtime:
+            return REDUCED_FILE
+    return TRANSLATED_FILE
 
 
 def build_stats(records: list[dict]) -> dict:
@@ -90,8 +108,9 @@ def build_stats(records: list[dict]) -> dict:
 def run():
     t0 = time.time()
 
-    log.info(f"Loading {IN_FILE} …")
-    with open(IN_FILE, encoding="utf-8") as f:
+    in_file = select_input_file()
+    log.info(f"Loading {in_file} …")
+    with open(in_file, encoding="utf-8") as f:
         records = json.load(f)
     log.info(f"  {len(records)} records")
 

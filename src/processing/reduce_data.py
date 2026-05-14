@@ -15,12 +15,18 @@ Chạy:
   cd src/processing && python reduce_data.py
 """
 
-import json, re, pathlib, logging, time
+import json, re, pathlib, logging, time, sys
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger("reduce")
 
 ROOT     = pathlib.Path(__file__).parent.parent.parent
+PIPELINE_DIR = pathlib.Path(__file__).parent
+if str(PIPELINE_DIR) not in sys.path:
+    sys.path.insert(0, str(PIPELINE_DIR))
+
+from medical_glossary import apply_glossary_to_record
+
 IN_FILE  = ROOT / "data/processed/translated.json"
 OUT_FILE = ROOT / "data/processed/reduced.json"   # file riêng, KHÔNG đè translated.json
 REPORT   = ROOT / "data/processed/reduction_report.json"
@@ -163,7 +169,12 @@ def reduce_record(record: dict) -> tuple[dict, dict]:
         "hard_truncated_fields": [],
         "cleared_fields":      [],
         "sparse_fields_filled": [],
+        "glossary_fields_normalized": 0,
     }
+
+    # 0. Chuẩn hóa thuật ngữ y khoa trước khi cắt ngắn/xử lý sparse.
+    record, normalized_count = apply_glossary_to_record(record, ["disease", *CONTENT_FIELDS])
+    stats["glossary_fields_normalized"] = normalized_count
 
     # 1. Smart truncation
     for field in CONTENT_FIELDS:
@@ -214,11 +225,58 @@ def run():
         reduced.append(r)
         all_stats.append(stats)
 
+    # ── Phase 2: Dedup theo tên bệnh tiếng Việt ──────────────────────────────
+    # Sau translate, có thể 2 tên EN khác nhau dịch ra cùng 1 tên VI.
+    # Gộp nội dung phong phú hơn, giữ lại 1 bản ghi duy nhất.
+    log.info("Phase 2: Dedup theo tên bệnh tiếng Việt…")
+    dedup_map = {}  # {disease_name_lower: index_in_deduped}
+    deduped = []
+    dup_count = 0
+    for rec in reduced:
+        name_key = (rec.get("disease", "") or "").strip().lower()
+        if not name_key:
+            deduped.append(rec)
+            continue
+        if name_key in dedup_map:
+            idx = dedup_map[name_key]
+            existing = deduped[idx]
+
+            # Gộp URLs
+            old_urls = existing.get("url", [])
+            new_urls = rec.get("url", [])
+            if isinstance(old_urls, str):
+                old_urls = [old_urls]
+            if isinstance(new_urls, str):
+                new_urls = [new_urls]
+            existing["url"] = list(dict.fromkeys(old_urls + new_urls))
+
+            # Cập nhật source
+            if existing.get("source") != rec.get("source"):
+                existing["source"] = "both"
+
+            # Merge nội dung: chọn field phong phú hơn
+            for field in CONTENT_FIELDS:
+                old_val = existing.get(field, "") or ""
+                new_val = rec.get(field, "") or ""
+                if len(new_val.split()) > len(old_val.split()):
+                    existing[field] = new_val
+
+            dup_count += 1
+            log.info(f"  🔄 Dedup: '{rec.get('disease', '')}' (source={rec.get('source', '?')})")
+        else:
+            dedup_map[name_key] = len(deduped)
+            deduped.append(rec)
+
+    if dup_count > 0:
+        log.info(f"  ✅ Đã gộp {dup_count} records trùng tên → còn {len(deduped)} records")
+    reduced = deduped
+
     # ── Build report ──────────────────────────────────────────────────────────
     truncated_total  = sum(len(s["truncated_fields"]) for s in all_stats)
     hard_trunc_total = sum(len(s["hard_truncated_fields"]) for s in all_stats)
     cleared_total    = sum(len(s["cleared_fields"]) for s in all_stats)
     sparse_filled    = sum(len(s["sparse_fields_filled"]) for s in all_stats)
+    glossary_normalized = sum(s["glossary_fields_normalized"] for s in all_stats)
 
     report = {
         "input_records":       len(records),
@@ -227,6 +285,7 @@ def run():
         "fields_hard_truncated":  hard_trunc_total,
         "fields_cleared_near_empty": cleared_total,
         "sparse_fields_auto_filled": sparse_filled,
+        "glossary_fields_normalized": glossary_normalized,
         "reduction_ratio":     f"{(1 - len(reduced)/len(records))*100:.1f}%" if records else "0%",
     }
 
@@ -246,6 +305,7 @@ def run():
     log.info(f"Hard truncated       : {report['fields_hard_truncated']:,} fields")
     log.info(f"Cleared near-empty   : {report['fields_cleared_near_empty']:,} fields")
     log.info(f"Sparse fields filled : {report['sparse_fields_auto_filled']:,}")
+    log.info(f"Glossary normalized  : {report['glossary_fields_normalized']:,} fields")
     log.info(f"Reduction ratio      : {report['reduction_ratio']}")
     log.info(f"Report saved → {REPORT}")
     log.info(f"Done in {time.time()-t0:.1f}s")
