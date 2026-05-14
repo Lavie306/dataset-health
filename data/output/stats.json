@@ -1,62 +1,62 @@
 {
-  "total_records": 3298,
+  "total_records": 3234,
   "by_source": {
-    "medlineplus": 2112,
-    "both": 461,
-    "mayo": 725
+    "medlineplus": 2056,
+    "both": 499,
+    "mayo": 679
   },
   "field_coverage": {
     "overview": {
-      "filled": 1652,
-      "empty": 1646,
-      "pct": 50.1
+      "filled": 1642,
+      "empty": 1592,
+      "pct": 50.8
     },
     "symptoms": {
-      "filled": 2564,
-      "empty": 734,
-      "pct": 77.7
+      "filled": 2511,
+      "empty": 723,
+      "pct": 77.6
     },
     "causes": {
-      "filled": 2529,
-      "empty": 769,
-      "pct": 76.7
+      "filled": 2468,
+      "empty": 766,
+      "pct": 76.3
     },
     "risk_factors": {
-      "filled": 1121,
-      "empty": 2177,
-      "pct": 34.0
+      "filled": 1113,
+      "empty": 2121,
+      "pct": 34.4
     },
     "prevention": {
-      "filled": 1485,
-      "empty": 1813,
-      "pct": 45.0
+      "filled": 1460,
+      "empty": 1774,
+      "pct": 45.1
     },
     "when_to_see_doc": {
-      "filled": 2359,
-      "empty": 939,
-      "pct": 71.5
+      "filled": 2308,
+      "empty": 926,
+      "pct": 71.4
     },
     "treatment": {
-      "filled": 1481,
-      "empty": 1817,
-      "pct": 44.9
+      "filled": 1469,
+      "empty": 1765,
+      "pct": 45.4
     },
     "prognosis": {
-      "filled": 1898,
-      "empty": 1400,
-      "pct": 57.6
+      "filled": 2127,
+      "empty": 1107,
+      "pct": 65.8
     },
     "complications": {
-      "filled": 1107,
-      "empty": 2191,
-      "pct": 33.6
+      "filled": 1100,
+      "empty": 2134,
+      "pct": 34.0
     },
     "exams_and_tests": {
-      "filled": 1464,
-      "empty": 1834,
-      "pct": 44.4
+      "filled": 1452,
+      "empty": 1782,
+      "pct": 44.9
     }
   },
-  "total_words": 2530662,
-  "avg_words_per_record": 767.3
+  "total_words": 2512440,
+  "avg_words_per_record": 776.9
 }

@@ -1,9 +1,10 @@
 {
-  "input_records": 3298,
-  "output_records": 3298,
+  "input_records": 3296,
+  "output_records": 3234,
   "fields_smart_truncated": 1,
   "fields_hard_truncated": 0,
   "fields_cleared_near_empty": 0,
   "sparse_fields_auto_filled": 250,
-  "reduction_ratio": "0.0%"
+  "glossary_fields_normalized": 0,
+  "reduction_ratio": "1.9%"
 }
