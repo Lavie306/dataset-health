@@ -4,13 +4,14 @@
 
 ## 1. Số liệu tổng quan
 
-| Chỉ số | Mayo Clinic | MedlinePlus | Tổng cộng |
+| Chỉ số | Mayo Clinic | MedlinePlus | Tổng cộng sau khi gộp |
 |--------|-------------|-------------|-----------|
-| Tổng bản ghi cào được | **1,186** | **2,583** | **3,769** |
-| Trùng lặp (cùng tên bệnh) | 0 | 0 | 0 |
-| Bản ghi chứa nhiễu (Noise)* | 469 (39.5%) | 24 (0.9%) | - |
-| Tổng số từ | 911,703 | 1,157,511 | 2,069,214 |
-| Trung bình từ/bản ghi | 768.7 | 448.1 | - |
+| Bản ghi độc quyền | **679** | **2,056** | - |
+| Bản ghi giao thoa (Cả hai) | **499** | **499** | - |
+| **Tổng bản ghi duy nhất** | 1,186 | 2,583 | **3,234** |
+| Bản ghi chứa nhiễu HTML | 469 (39.5%) | 24 (0.9%) | - |
+| Tổng số từ (Word Count) | 928,683 | 1,160,754 | 2,089,437 |
+| Trung bình từ/bản ghi | 783.0 | 449.4 | - |
 
 *(Nhiễu bao gồm: dính thẻ HTML chưa xử lý hết, các text rác như 'Enlarge image', 'Close', citation marks).* 
 
@@ -38,6 +39,6 @@
 Qua các số liệu trên, ta thấy được các vấn đề rõ rệt của dữ liệu thô:
 1. **Nhiễu cấu trúc (Noise):** Dữ liệu thu thập từ HTML thường kèm theo text thừa của giao diện website. Cần thực hiện làm sạch (Data Cleaning).
 2. **Dữ liệu thưa thớt (Sparsity):** Có những trường tỷ lệ điền rất thấp (như Prognosis, Complications). Nếu để nguyên sẽ gây loãng dữ liệu. Cần chiến lược gộp hai nguồn để bổ sung cho nhau (Data Integration).
-3. **Dữ liệu trùng lặp (Duplication):** Các bệnh bị lưu trùng dưới nhiều URL. Cần hợp nhất (Data Reduction/Merge).
+3. **Dữ liệu trùng lặp (Duplication):** Rất nhiều bệnh xuất hiện ở cả hai nền tảng. Cần thực thi thuật toán SequenceMatcher để tìm và hợp nhất.
 
-*(Các biểu đồ tương ứng: `raw_1_overview_stats.png`, `raw_2_field_completeness.png`, `raw_3_wordcount_boxplot.png`, `raw_4_noise_ratio.png` được lưu cùng thư mục)*
+*(Các biểu đồ minh họa đã được lưu cùng thư mục)*

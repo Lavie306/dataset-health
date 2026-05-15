@@ -1,15 +1,14 @@
 {
-  "generated_at": "2026-05-15 00:03:06",
-  "data_source": "discretized.json",
+  "generated_at": "2026-05-15 23:06:05",
   "translation_quality": {
     "total_records": 3234,
-    "fully_translated": 3044,
-    "partial_english": 3,
+    "fully_translated": 3039,
+    "partial_english": 8,
     "mostly_english": 0,
     "not_translated": 187,
     "no_content": 0,
-    "pct_fully_translated": 94.1,
-    "pct_issues": 5.9
+    "pct_fully_translated": 94.0,
+    "pct_issues": 6.0
   },
   "encoding_quality": {
     "total_records": 3234,
@@ -29,14 +28,14 @@
         "sparse": 0,
         "filled": 1642,
         "pct_filled": 50.8,
-        "avg_words": 130.6,
+        "avg_words": 130.7,
         "quality": "Trung bình"
       },
       "symptoms": {
         "label": "Triệu chứng",
         "empty": 723,
-        "sparse": 3,
-        "filled": 2508,
+        "sparse": 0,
+        "filled": 2511,
         "pct_filled": 77.6,
         "avg_words": 107.0,
         "quality": "Tốt"
@@ -47,7 +46,7 @@
         "sparse": 0,
         "filled": 2468,
         "pct_filled": 76.3,
-        "avg_words": 146.0,
+        "avg_words": 146.1,
         "quality": "Tốt"
       },
       "risk_factors": {
@@ -56,16 +55,16 @@
         "sparse": 0,
         "filled": 1113,
         "pct_filled": 34.4,
-        "avg_words": 51.1,
+        "avg_words": 51.2,
         "quality": "Kém"
       },
       "prevention": {
         "label": "Phòng ngừa",
         "empty": 1772,
-        "sparse": 6,
-        "filled": 1456,
-        "pct_filled": 45.0,
-        "avg_words": 59.0,
+        "sparse": 2,
+        "filled": 1460,
+        "pct_filled": 45.1,
+        "avg_words": 59.2,
         "quality": "Trung bình"
       },
       "when_to_see_doc": {
@@ -74,34 +73,34 @@
         "sparse": 0,
         "filled": 2308,
         "pct_filled": 71.4,
-        "avg_words": 90.0,
+        "avg_words": 90.3,
         "quality": "Tốt"
       },
       "treatment": {
         "label": "Điều trị",
         "empty": 1765,
-        "sparse": 4,
-        "filled": 1465,
-        "pct_filled": 45.3,
-        "avg_words": 82.0,
+        "sparse": 0,
+        "filled": 1469,
+        "pct_filled": 45.4,
+        "avg_words": 82.1,
         "quality": "Trung bình"
       },
       "prognosis": {
         "label": "Tiên lượng",
         "empty": 1098,
-        "sparse": 38,
-        "filled": 2098,
-        "pct_filled": 64.9,
-        "avg_words": 42.1,
+        "sparse": 9,
+        "filled": 2127,
+        "pct_filled": 65.8,
+        "avg_words": 42.2,
         "quality": "Trung bình"
       },
       "complications": {
         "label": "Biến chứng",
         "empty": 2130,
-        "sparse": 12,
-        "filled": 1092,
-        "pct_filled": 33.8,
-        "avg_words": 16.9,
+        "sparse": 4,
+        "filled": 1100,
+        "pct_filled": 34.0,
+        "avg_words": 16.8,
         "quality": "Kém"
       },
       "exams_and_tests": {
@@ -110,22 +109,10 @@
         "sparse": 0,
         "filled": 1452,
         "pct_filled": 44.9,
-        "avg_words": 52.0,
+        "avg_words": 52.2,
         "quality": "Trung bình"
       }
     }
-  },
-  "duplicate_summary": {
-    "total_records": 3234,
-    "exact_duplicates": 0,
-    "duplicate_names": [],
-    "source_distribution": {
-      "medlineplus": 2056,
-      "both": 499,
-      "mayo": 679
-    },
-    "conflict_records": 455,
-    "total_conflict_fields": 836
   },
   "icd_coverage": {
     "total_records": 3234,
@@ -136,16 +123,16 @@
       "C – Ung thư": 74,
       "J – Hô hấp": 42,
       "I – Tim mạch": 39,
-      "F – Tâm thần & hành vi": 34,
+      "F – Tâm thần": 34,
       "E – Nội tiết & chuyển hóa": 30,
-      "A – Bệnh nhiễm khuẩn & ký sinh trùng": 29,
+      "A – Nhiễm khuẩn & ký sinh": 29,
       "D – U lành & rối loạn máu": 26,
       "G – Thần kinh": 25,
-      "B – Bệnh nhiễm khuẩn & virus": 21,
+      "B – Nhiễm khuẩn & virus": 21,
       "H – Mắt & Tai": 19,
       "M – Cơ xương khớp": 18,
       "L – Da liễu": 15,
-      "N – Sinh dục & tiết niệu": 15,
+      "N – Tiết niệu sinh dục": 15,
       "K – Tiêu hóa": 15,
       "T – Khác": 1
     },
@@ -256,67 +243,6 @@
         "count": 203,
         "pct": 6.3
       }
-    },
-    "demographic": {
-      "Người lớn": {
-        "count": 2101,
-        "pct": 65.0
-      },
-      "Trẻ em": {
-        "count": 1026,
-        "pct": 31.7
-      },
-      "Người cao tuổi": {
-        "count": 76,
-        "pct": 2.4
-      },
-      "Mọi lứa tuổi": {
-        "count": 31,
-        "pct": 1.0
-      }
-    },
-    "content_richness": {
-      "Trung bình (300-599 từ)": {
-        "count": 892,
-        "pct": 27.6
-      },
-      "Đầy đủ (1000-1999 từ)": {
-        "count": 827,
-        "pct": 25.6
-      },
-      "Khá đầy đủ (600-999 từ)": {
-        "count": 812,
-        "pct": 25.1
-      },
-      "Ít (100-299 từ)": {
-        "count": 525,
-        "pct": 16.2
-      },
-      "Rất đầy đủ (≥2000 từ)": {
-        "count": 94,
-        "pct": 2.9
-      },
-      "Rất ít (<100 từ)": {
-        "count": 84,
-        "pct": 2.6
-      }
     }
-  },
-  "glossary_compliance": {
-    "glossary_terms": 136,
-    "records_with_unstandardized_terms": 0,
-    "pct_records_with_unstandardized_terms": 0.0,
-    "top_unstandardized_terms": {},
-    "quality": "Tốt"
-  },
-  "reduction_summary": {
-    "input_records": 3296,
-    "output_records": 3234,
-    "fields_smart_truncated": 1,
-    "fields_hard_truncated": 0,
-    "fields_cleared_near_empty": 0,
-    "sparse_fields_auto_filled": 250,
-    "glossary_fields_normalized": 0,
-    "reduction_ratio": "1.9%"
   }
 }
