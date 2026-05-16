@@ -18,23 +18,9 @@ NODES_PATH = r"D:\Project Data Mining\Project\data\graph\nodes_updated.json"
 EDGES_PATH = r"D:\Project Data Mining\Project\data\graph\edges_updated.json"
 
 BATCH = 2000
-BATCH_EDGES = 500  # Batch nhỏ hơn cho edges vì MATCH 2 nodes nặng hơn
 
 # ==================== KHỞI TẠO DRIVER ====================
 driver = GraphDatabase.driver(URI, auth=(USER, PASSWORD))
-
-# ==================== TẠO INDEX CHO NEO4J ====================
-NODE_LABELS = ["Disease", "Symptom", "Cause", "Treatment", "Test",
-               "Organ", "RiskFactor", "Complication", "Drug", "Guideline"]
-
-def ensure_indexes(session):
-    """Tạo index trên field 'id' cho mọi label để MATCH nhanh hơn"""
-    for label in NODE_LABELS:
-        try:
-            session.run(f"CREATE INDEX IF NOT EXISTS FOR (n:{label}) ON (n.id)")
-        except Exception:
-            pass  # Index đã tồn tại
-    log.info("✅ Đã đảm bảo index cho tất cả labels")
 
 # ==================== HÀM FETCH DỮ LIỆU TỪ NEO4J ====================
 def fetch_nodes_from_neo4j(tx):
@@ -80,7 +66,7 @@ def delete_edges_batch(tx, edges_to_delete):
     """Xóa edges - nhóm theo relation type rồi xóa batch"""
     if not edges_to_delete:
         return
-    # Nhóm edges theo relation type (vì không thể tham số hóa relation trong Cypher)
+    # Nhóm edges theo relation type 
     by_relation = defaultdict(list)
     for edge in edges_to_delete:
         by_relation[edge['relation']].append(edge)
@@ -108,7 +94,7 @@ def delete_nodes_batch(tx, node_ids):
 # ==================== HÀM PUSH DỮ LIỆU ====================
 def push_nodes_batch(tx, label, batch):
     """Đẩy batch nodes lên Neo4j với label đúng"""
-    # Loại bỏ field 'type' khỏi properties (vì đã dùng làm label)
+    # Loại bỏ field 'type' khỏi properties 
     clean_batch = []
     for node in batch:
         clean_node = {k: v for k, v in node.items() if k != 'type'}
@@ -143,16 +129,13 @@ def update_nodes_batch(tx, label, batch):
     """
     tx.run(query_create, rows=clean_batch)
 
-def push_edges_batch(tx, relation, batch, src_label=None, dst_label=None):
+def push_edges_batch(tx, relation, batch):
     """Đẩy batch edges lên Neo4j (nhóm theo relation type)"""
     pairs = [{'src_id': e['src_id'], 'dst_id': e['dst_id']} for e in batch]
-    # Dùng label trong MATCH nếu có (nhanh hơn rất nhiều nhờ index)
-    src_match = f"(src:{src_label} {{id: pair.src_id}})" if src_label else "(src {id: pair.src_id})"
-    dst_match = f"(dst:{dst_label} {{id: pair.dst_id}})" if dst_label else "(dst {id: pair.dst_id})"
     query = f"""
         UNWIND $pairs AS pair
-        MATCH {src_match}
-        MATCH {dst_match}
+        MATCH (src {{id: pair.src_id}})
+        MATCH (dst {{id: pair.dst_id}})
         MERGE (src)-[:{relation}]->(dst)
     """
     tx.run(query, pairs=pairs)
@@ -186,8 +169,8 @@ def update_graph_in_neo4j():
     old_nodes_dict = {node.get('id'): node for node in old_nodes}
     new_nodes_dict = {node.get('id'): node for node in new_nodes}
     
-    nodes_to_delete = []    # IDs nodes cần xóa (không còn tồn tại trong file mới)
-    nodes_to_update = []    # Nodes cần cập nhật (tồn tại nhưng dữ liệu thay đổi)
+    nodes_to_delete = []    # IDs nodes cần xóa 
+    nodes_to_update = []    # Nodes cần cập nhật 
     nodes_to_add = []       # Nodes hoàn toàn mới
     nodes_kept = 0
     
@@ -214,7 +197,7 @@ def update_graph_in_neo4j():
     log.info(f"  🔄 Cập nhật: {len(nodes_to_update)} nodes")
     log.info(f"  ➕ Thêm mới: {len(nodes_to_add)} nodes")
     
-    # 4. So sánh Edges (dùng set → O(n))
+    # 4. So sánh Edges 
     log.info("\n📊 So sánh Edges...")
     
     old_edge_set = set(make_edge_key(e) for e in old_edges)
@@ -308,34 +291,22 @@ def update_graph_in_neo4j():
                 log.info(f"  ✅ Đẩy {len(group)} nodes [{label}]")
             log.info("✅ Push nodes thành công")
         
-        # Bước 5: Tạo index (tăng tốc MATCH cho edges)
-        log.info("\n🔧 Đảm bảo index...")
-        session.execute_write(lambda tx: None)  # flush
-        ensure_indexes(session)
-        
-        # Bước 6: Thêm edges mới
+        # Bước 5: Thêm edges mới
         if edges_to_add:
             log.info(f"\n📤 Đẩy {len(edges_to_add)} edges mới lên Neo4j...")
-            # Build map node_id -> label để MATCH có label (nhanh hơn)
-            node_label_map = {n['id']: n.get('type', 'Unknown') for n in new_nodes}
-            
             # Nhóm theo relation type
             by_relation = defaultdict(list)
             for edge in edges_to_add:
                 by_relation[edge['relation']].append(edge)
             
             for relation, group in by_relation.items():
-                for i in range(0, len(group), BATCH_EDGES):
-                    batch = group[i:i+BATCH_EDGES]
-                    # Xác định label phổ biến nhất của src và dst trong batch
-                    src_label = node_label_map.get(batch[0]['src_id'])
-                    dst_label = node_label_map.get(batch[0]['dst_id'])
+                for i in range(0, len(group), BATCH):
+                    batch = group[i:i+BATCH]
                     try:
-                        session.execute_write(push_edges_batch, relation, batch, src_label, dst_label)
+                        session.execute_write(push_edges_batch, relation, batch)
                     except Exception as e:
-                        log.error(f"❌ Lỗi push edges [{relation}] batch {i}: {e}")
-                progress = len(group)
-                log.info(f"  ✅ Đẩy {progress} edges [{relation}]")
+                        log.error(f"❌ Lỗi push edges [{relation}]: {e}")
+                log.info(f"  ✅ Đẩy {len(group)} edges [{relation}]")
             log.info("✅ Push edges thành công")
     
     # 6. In kết quả cuối cùng
