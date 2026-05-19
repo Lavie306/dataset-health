@@ -1,16 +1,23 @@
 import json
 import pathlib
+import os
 from neo4j import GraphDatabase
 from collections import defaultdict
 import logging
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger("neo4j_uploader")
 
 # ==================== CẤU HÌNH ====================
-URI      = "neo4j+s://617d923b.databases.neo4j.io"
-USER     = "617d923b"
-PASSWORD = "itstG4n0algoesE1jQTLqWRccBLy9392E_QVxW3R2dQ"
+URI      = os.getenv("NEO4J_URI", "neo4j+s://617d923b.databases.neo4j.io")
+USER     = os.getenv("NEO4J_USER", "617d923b")
+PASSWORD = os.getenv("NEO4J_PASSWORD")
+
+if not PASSWORD:
+    raise ValueError("NEO4J_PASSWORD environment variable không được set. Vui lòng thiết lập trong .env hoặc biến môi trường hệ thống.")
 
 
 # Sử dụng file JSON cập nhật (với Drugs & Guidelines)
